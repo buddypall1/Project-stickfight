@@ -70,47 +70,12 @@ def exitpressed():
     window.destroy()
     savedata()
 
-    #### level select setup Start ####
-def playpressed():
-    global player, enemy
-    playwindow = tkinter.Toplevel(window)
-    playwindow.resizable(0,0)
-    def disable_event():
-        pass
-    playwindow.protocol("WM_DELETE_WINDOW", disable_event)
-    playwindow.title('TmEsg')
-    playwindow.geometry('950x700')
-
-    selectlevlabel= tkinter.Label(playwindow, text= "Select Level:", font=('Arial', 15, 'bold'))
-    selectlevlabel.place(x=420, y=100)
-
-    easylev = tkinter.Button(playwindow, text="Easy", background="Green", activebackground="Dark Green", height=2, width=21)
-    easylev.place(x=150, y=200)
-    mediumlev = tkinter.Button(playwindow, text="Medium", background="Yellow", activebackground="Goldenrod", height=2, width=21)
-    mediumlev.place(x=320, y=200)
-    hardlev = tkinter.Button(playwindow, text="Hard", background="Orange", activebackground="Orange3", height=2, width=21)
-    hardlev.place(x=490, y=200)
-    vhardlev = tkinter.Button(playwindow, text="Very Hard", background="Red", activebackground="Red3", height=2, width=21)
-    vhardlev.place(x=660, y=200)
-    inflev = tkinter.Button(playwindow, text="Infinite", background="Light Blue", activebackground="RoyalBlue1", height=2, width=21)
-    inflev.place(x=321, y=250)
-        
-        
-    ##################################
-    ###    CUSTOM GAME SETTINGS    ###
-    ##################################
-
-
+    
 def playpressed():
     global player, enemy
 
     playwindow = tkinter.Toplevel(window)
     playwindow.resizable(0,0)
-
-    def disable_event():
-        pass
-
-    playwindow.protocol("WM_DELETE_WINDOW", disable_event)
     playwindow.title('TmEsg')
     playwindow.geometry('950x700')
 
@@ -128,7 +93,11 @@ def playpressed():
     inflev = tkinter.Button(playwindow, text="Infinite", background="Light Blue", activebackground="RoyalBlue1", height=2, width=21)
     inflev.place(x=321, y=250)
 
-    #### CUSTOM LVL SETTINGS ####
+
+    ##################################
+    ###    CUSTOM GAME SETTINGS    ###
+    ##################################
+
     def customlevpress():
         global player, enemy
 
@@ -146,7 +115,9 @@ def playpressed():
         Enemsprlabel = tkinter.Label(settingwindow, image=Enemsprite)
         Enemsprlabel.place(x=440, y=370)
         Enemsprlabel.image = Enemsprite
-
+        
+        confirmbuttn = tkinter.Button(settingwindow, text="Play", background='grey', height=2,width=21)
+        confirmbuttn.place(x=490, y=20)
         def exitsett():
             settingwindow.destroy()
 
@@ -302,11 +273,6 @@ def playpressed():
     ##################################
     #### CUSTOM GAME SETTINGS END #### 
     ##################################
-
-
-
-    customlev= tkinter.Button(playwindow, text="Custom", background="MediumOrchid1", activebackground="MediumOrchid3", height=2, width=21, command=customlevpress)
-    customlev.place(x=489, y=250)
     def backmainpress():
         playwindow.destroy()
     backmain = tkinter.Button(playwindow, text="Back to Menu", background="Gray", activebackground="Dark Gray", height=2, width=21, command=backmainpress)
