@@ -70,7 +70,7 @@ def exitpressed():
     window.destroy()
     savedata()
 
-
+    #### level select setup Start ####
 def playpressed():
     global player, enemy
     playwindow = tkinter.Toplevel(window)
@@ -81,205 +81,255 @@ def playpressed():
     playwindow.title('TmEsg')
     playwindow.geometry('950x700')
 
-    playersprite = tkinter.PhotoImage(file = "Media\playerplaceholder.png")
-    playersprlabel = tkinter.Label(playwindow, image=playersprite)
-    playersprlabel.place(x=200, y= 150)
-    playersprlabel.image = playersprite
+    selectlevlabel= tkinter.Label(playwindow, text= "Select Level:", font=('Arial', 15, 'bold'))
+    selectlevlabel.place(x=420, y=100)
 
-def settingspressed():
+    easylev = tkinter.Button(playwindow, text="Easy", background="Green", activebackground="Dark Green", height=2, width=21)
+    easylev.place(x=150, y=200)
+    mediumlev = tkinter.Button(playwindow, text="Medium", background="Yellow", activebackground="Goldenrod", height=2, width=21)
+    mediumlev.place(x=320, y=200)
+    hardlev = tkinter.Button(playwindow, text="Hard", background="Orange", activebackground="Orange3", height=2, width=21)
+    hardlev.place(x=490, y=200)
+    vhardlev = tkinter.Button(playwindow, text="Very Hard", background="Red", activebackground="Red3", height=2, width=21)
+    vhardlev.place(x=660, y=200)
+    inflev = tkinter.Button(playwindow, text="Infinite", background="Light Blue", activebackground="RoyalBlue1", height=2, width=21)
+    inflev.place(x=321, y=250)
+        
+        
+    ##################################
+    ###    CUSTOM GAME SETTINGS    ###
+    ##################################
+
+
+def playpressed():
     global player, enemy
 
-    settingwindow = tkinter.Toplevel(window)
-    settingwindow.title("Settings")
-    settingwindow.resizable(0, 0)
-    settingwindow.geometry("650x650")
-    playersprite = tkinter.PhotoImage(file = "Media\playersprite.png")
-    playersprlabel = tkinter.Label(settingwindow, image=playersprite)
-    playersprlabel.place(x=440, y= 100)
-    playersprlabel.image = playersprite
+    playwindow = tkinter.Toplevel(window)
+    playwindow.resizable(0,0)
 
+    def disable_event():
+        pass
 
-    Enemsprite = tkinter.PhotoImage(file = "Media\enemysprite.png")
-    Enemsprlabel = tkinter.Label(settingwindow, image=Enemsprite)
-    Enemsprlabel.place(x=440, y= 370)
-    Enemsprlabel.image = Enemsprite
+    playwindow.protocol("WM_DELETE_WINDOW", disable_event)
+    playwindow.title('TmEsg')
+    playwindow.geometry('950x700')
 
-    def exitsett():
-        settingwindow.destroy()
+    selectlevlabel = tkinter.Label(playwindow, text="Select Level:", font=('Arial', 15, 'bold'))
+    selectlevlabel.place(x=420, y=100)
 
-    exitbut = tkinter.Button(settingwindow, text="Back", background='grey', height=2, width=21, command=exitsett)
-    exitbut.place(x=4, y=20)
-    settingslabel = tkinter.Label(settingwindow, text="Settings", font=('Arial', 25))
-    settingslabel.place(x=245, y=40)
+    easylev = tkinter.Button(playwindow, text="Easy", background="Green", activebackground="Dark Green", height=2, width=21)
+    easylev.place(x=150, y=200)
+    mediumlev = tkinter.Button(playwindow, text="Medium", background="Yellow", activebackground="Goldenrod", height=2, width=21)
+    mediumlev.place(x=320, y=200)
+    hardlev = tkinter.Button(playwindow, text="Hard", background="Orange", activebackground="Orange3", height=2, width=21)
+    hardlev.place(x=490, y=200)
+    vhardlev = tkinter.Button(playwindow, text="Very Hard", background="Red", activebackground="Red3", height=2, width=21)
+    vhardlev.place(x=660, y=200)
+    inflev = tkinter.Button(playwindow, text="Infinite", background="Light Blue", activebackground="RoyalBlue1", height=2, width=21)
+    inflev.place(x=321, y=250)
 
-    #### health setting handler ####
-    health_label = tkinter.Label(settingwindow, text="Player Health:")
-    health_label.place(x=50, y=150)
-    health_entry = tkinter.Entry(settingwindow)
-    health_entry.place(x=160, y=150)
-    playerlabel = tkinter.Label(settingwindow, text="Player", font=('Arial', 25))
-    playerlabel.place(x=160, y= 100)
-    health_entry.insert(0, str(player.health))
+    #### CUSTOM LVL SETTINGS ####
+    def customlevpress():
+        global player, enemy
 
-    def update_health():
-        try:
-            new_health = int(health_entry.get())
-            if new_health <= 0 or new_health > 100:
-                tkinter.messagebox.showerror('Out of range', 'You inputted a out of range number! Range: 1-100')
-            else:
-                player.health = new_health
-                tkinter.messagebox.showinfo('Success!', 'Health Changed Successfully!')
-        except ValueError:
-            tkinter.messagebox.showerror('Non number value!', 'ERROR! You have entered a non number value.')
-    updatehealthb = tkinter.Button(settingwindow, text="Set Health", command=update_health)
-    updatehealthb.place(x=300, y=150)
+        settingwindow = tkinter.Toplevel(window)
+        settingwindow.title("Settings")
+        settingwindow.resizable(0, 0)
+        settingwindow.geometry("650x650")
+
+        playersprite = tkinter.PhotoImage(file="Media\\playersprite.png")
+        playersprlabel = tkinter.Label(settingwindow, image=playersprite)
+        playersprlabel.place(x=440, y=100)
+        playersprlabel.image = playersprite
+
+        Enemsprite = tkinter.PhotoImage(file="Media\\enemysprite.png")
+        Enemsprlabel = tkinter.Label(settingwindow, image=Enemsprite)
+        Enemsprlabel.place(x=440, y=370)
+        Enemsprlabel.image = Enemsprite
+
+        def exitsett():
+            settingwindow.destroy()
+
+        exitbut = tkinter.Button(settingwindow, text="Back", background='grey', height=2, width=21, command=exitsett)
+        exitbut.place(x=4, y=20)
+
+        settingslabel = tkinter.Label(settingwindow, text="Settings", font=('Arial', 25))
+        settingslabel.place(x=245, y=40)
+
+        #### PLAYER HEALTH ####
+        playerlabel = tkinter.Label(settingwindow, text="Player", font=('Arial', 25))
+        playerlabel.place(x=160, y=100)
+
+        health_label = tkinter.Label(settingwindow, text="Player Health:")
+        health_label.place(x=50, y=150)
+        health_entry = tkinter.Entry(settingwindow)
+        health_entry.place(x=160, y=150)
+        health_entry.insert(0, str(player.health))
+
+        def update_health():
+            try:
+                new_health = int(health_entry.get())
+                if new_health <= 0 or new_health > 100:
+                    tkinter.messagebox.showerror('Out of range', 'Range: 1-100')
+                else:
+                    player.health = new_health
+                    tkinter.messagebox.showinfo('Success!', 'Health Changed Successfully!')
+            except ValueError:
+                tkinter.messagebox.showerror('Non number value!', 'You entered a non-number.')
+
+        tkinter.Button(settingwindow, text="Set Health", command=update_health).place(x=300, y=150)
+
+        #### PLAYER DAMAGE ####
+        damagelabel = tkinter.Label(settingwindow, text="Player Damage:")
+        damagelabel.place(x=50, y=200)
+        damage_entry = tkinter.Entry(settingwindow)
+        damage_entry.place(x=160, y=200)
+        damage_entry.insert(0, str(player.damage))
+
+        def updatedamage():
+            try:
+                new_damage = int(damage_entry.get())
+                if new_damage <= 0 or new_damage > 10:
+                    tkinter.messagebox.showerror('Out of range', 'Range: 1-10')
+                else:
+                    player.damage = new_damage
+                    tkinter.messagebox.showinfo('Success!', 'Damage Changed Successfully!')
+            except ValueError:
+                tkinter.messagebox.showerror('Non number value!', 'You entered a non-number.')
+
+        tkinter.Button(settingwindow, text="Set Damage", command=updatedamage).place(x=300, y=200)
+
+        #### PLAYER WEAPON ####
+        def show():
+            selected_weapon = cb.get()
+            player.weapon = selected_weapon
+            lbl.config(text=f"Weapon set to: {selected_weapon}")
+
+        WeaponSelectPlayer = ["None", "Sword", "Gun"]
+        cb = ttk.Combobox(settingwindow, values=WeaponSelectPlayer)
+        cb.set(player.weapon)
+        cb.place(x=151, y=250)
+
+        tkinter.Button(settingwindow, text="Set Weapon", command=show).place(x=300, y=250)
+        lbl = tkinter.Label(settingwindow, text="")
+        lbl.place(x=151, y=280)
+
+        tkinter.Label(settingwindow, text="Player Weapon:").place(x=50, y=250)
+
+        #### ENEMY SECTION ####
+        enemylabel = tkinter.Label(settingwindow, text="Enemy", font=('Arial', 25))
+        enemylabel.place(x=160, y=340)
+
+        healthEnemy_label = tkinter.Label(settingwindow, text="Enemy Health:")
+        healthEnemy_label.place(x=50, y=390)
+        healthEnemy_entry = tkinter.Entry(settingwindow)
+        healthEnemy_entry.place(x=160, y=390)
+        healthEnemy_entry.insert(0, str(enemy.health))
+
+        def updateEnem_health():
+            try:
+                new_healthEnemy = int(healthEnemy_entry.get())
+                if new_healthEnemy <= 0 or new_healthEnemy > 100:
+                    tkinter.messagebox.showerror('Out of range', 'Range: 1-100')
+                else:
+                    enemy.health = new_healthEnemy
+                    tkinter.messagebox.showinfo('Success!', 'Health Changed Successfully!')
+            except ValueError:
+                tkinter.messagebox.showerror('Non number value!', 'You entered a non-number.')
+
+        tkinter.Button(settingwindow, text="Set Health", command=updateEnem_health).place(x=300, y=389)
+
+        #### ENEMY DAMAGE ####
+        damageEnemylabel = tkinter.Label(settingwindow, text="Enemy Damage:")
+        damageEnemylabel.place(x=50, y=430)
+        damageEnemy_entry = tkinter.Entry(settingwindow)
+        damageEnemy_entry.place(x=160, y=430)
+        damageEnemy_entry.insert(0, str(enemy.damage))
+
+        def updatedEnemamage():
+            try:
+                newEnemy_damage = int(damageEnemy_entry.get())
+                if newEnemy_damage <= 0 or newEnemy_damage > 10:
+                    tkinter.messagebox.showerror('Out of range', 'Range: 1-10')
+                else:
+                    enemy.damage = newEnemy_damage
+                    tkinter.messagebox.showinfo('Success!', 'Damage Changed Successfully!')
+            except ValueError:
+                tkinter.messagebox.showerror('Non number value!', 'You entered a non-number.')
+
+        tkinter.Button(settingwindow, text="Set Damage", command=updatedEnemamage).place(x=300, y=429)
+        def showEnem():
+            selectedEnem_weapon = cbEnem.get()
+            enemy.weapon = selectedEnem_weapon 
+            lblEnem.config(text=f"Weapon set to: {selectedEnem_weapon}")  
+            print(enemy.weapon)
     
-    #### geeks4geeks ####
-    
-    def show():
-        selected_weapon = cb.get()
-        player.weapon = selected_weapon 
-        lbl.config(text=f"Weapon set to: {selected_weapon}")  
-        print(player.weapon)
-    
-    WeaponSelectPlayer = ["None", "Sword", "Gun"]
+        WeaponSelectEnemy = ["None", "Sword", "Gun"]
 
 
-    cb = ttk.Combobox(settingwindow, values=WeaponSelectPlayer)
-    cb.set(f"{player.weapon}")
-    cb.place(x=151, y=250)
-    confirmweap = tkinter.Button(settingwindow, text="Set Weapon", command=show)
-    confirmweap.place(x=300, y=250)
-    lbl = tkinter.Label(settingwindow, text="")
-    lbl.place(x=151, y=280)
-    weaponlabl = tkinter.Label(settingwindow, text= "Player Weapon:")
-    weaponlabl.place(x=50, y = 250)
-    
-    #### geeks4geeks ####
+        cbEnem = ttk.Combobox(settingwindow, values=WeaponSelectEnemy)
+        cbEnem.set(f"{enemy.weapon}")
+        cbEnem.place(x=151, y=470)
+        confirmEnemweap = tkinter.Button(settingwindow, text="Set Weapon", command=showEnem)
+        confirmEnemweap.place(x=300, y=470)
+        lblEnem = tkinter.Label(settingwindow, text="")
+        lblEnem.place(x=151, y=495)
+        weaponEnemlabl = tkinter.Label(settingwindow, text= "Enemy Weapon:")
+        weaponEnemlabl.place(x=50, y = 470)
+        #### ENEMY RNG ####
+        rngEnemylabel = tkinter.Label(settingwindow, text="Enemy RNG:")
+        rngEnemylabel.place(x=50, y=520)
+        rngEnemy_entry = tkinter.Entry(settingwindow)
+        rngEnemy_entry.place(x=160, y=520)
+        rngEnemy_entry.insert(0, str(enemy.rng))
+
+        def rngEnem():
+            try:
+                newEnemy_rng = int(rngEnemy_entry.get())
+                if newEnemy_rng <= 0 or newEnemy_rng > 100:
+                    tkinter.messagebox.showerror('Out of range', 'Range: 1-100')
+                else:
+                    enemy.rng = newEnemy_rng
+                    tkinter.messagebox.showinfo('Success!', 'RNG Changed Successfully!')
+            except ValueError:
+                tkinter.messagebox.showerror('Non number value!', 'You entered a non-number.')
+
+        tkinter.Button(settingwindow, text="Set RNG", command=rngEnem).place(x=300, y=519)
+
+    customlev = tkinter.Button(playwindow, text="Custom",background="MediumOrchid1",activebackground="MediumOrchid3",height=2, width=21,command=customlevpress)
+    customlev.place(x=489, y=250)
+
+    ##################################
+    #### CUSTOM GAME SETTINGS END #### 
+    ##################################
 
 
-    #### health setting handler ####
 
-    #### damage setting handler ####
+    customlev= tkinter.Button(playwindow, text="Custom", background="MediumOrchid1", activebackground="MediumOrchid3", height=2, width=21, command=customlevpress)
+    customlev.place(x=489, y=250)
+    def backmainpress():
+        playwindow.destroy()
+    backmain = tkinter.Button(playwindow, text="Back to Menu", background="Gray", activebackground="Dark Gray", height=2, width=21, command=backmainpress)
+    backmain.place(x=410, y=350)
 
-    damagelabel = tkinter.Label(settingwindow, text = "Player Damage:")
-    damagelabel.place(x=50, y= 200)
-    damage_entry = tkinter.Entry(settingwindow)
-    damage_entry.place(x=160, y=200)
-    damage_entry.insert(0, str(player.damage))
-
-    def updatedamage():
-        try:
-            new_damage = int(damage_entry.get())
-            if new_damage <= 0 or new_damage > 10:
-                tkinter.messagebox.showerror('Out of range', 'You inputted an out of range number! range: 1-10')
-            else:
-                player.damage = new_damage
-                tkinter.messagebox.showinfo('Success!', 'Damage Changed Successfully!')
-        except ValueError:
-            tkinter.messagebox.showerror('Non number value!', 'ERROR! You have entered a non number value.')
-    updatedamageb = tkinter.Button(settingwindow, text="Set Damage", command= updatedamage)
-    updatedamageb.place(x=300,y= 200)
-
-        #### ENEMY SETTINGS ####
-        
-    enemylabel = tkinter.Label(settingwindow, text="Enemy", font=('Arial', 25))
-    enemylabel.place(x=160, y= 340) #40
-
-    #### health setting handler ####
-
-    healthEnemy_label = tkinter.Label(settingwindow, text="Enemy Health:")
-    healthEnemy_label.place(x=50, y=390)
-    healthEnemy_entry = tkinter.Entry(settingwindow)
-    healthEnemy_entry.place(x=160, y=390)
-    healthEnemy_entry.insert(0, str(enemy.health))
-    def updateEnem_health():
-        try:
-            new_healthEnemy = int(healthEnemy_entry.get())
-            if new_healthEnemy <= 0 or new_healthEnemy > 100:
-                tkinter.messagebox.showerror('Out of range', 'You inputted an out of range number! Range: 1-100')
-            else:
-                enemy.health = new_healthEnemy
-                tkinter.messagebox.showinfo('Success!', 'Health Changed Successfully!')
-        except ValueError:
-            tkinter.messagebox.showerror('Non number value!', 'ERROR! You have entered a non number value.')
-    updatehealthenemb = tkinter.Button(settingwindow, text="Set Health", command=updateEnem_health)
-    updatehealthenemb.place(x=300, y=389)
-
-    #### damage setting handler ####
-
-    damageEnemylabel = tkinter.Label(settingwindow, text = "Enemy Damage:")
-    damageEnemylabel.place(x=50, y= 430)
-    damageEnemy_entry = tkinter.Entry(settingwindow)
-    damageEnemy_entry.place(x=160, y= 430)
-    damageEnemy_entry.insert(0, str(enemy.damage))
-    
-    def updatedEnemamage():
-        try:
-            newEnemy_damage = int(damageEnemy_entry.get())
-            if newEnemy_damage <= 0 or newEnemy_damage > 10:
-                tkinter.messagebox.showerror('Out of range', 'You inputted an out of range number! range: 1-10')
-            else:
-                enemy.damage = newEnemy_damage
-                tkinter.messagebox.showinfo('Success!', 'Damage Changed Successfully!')
-        except ValueError:
-            tkinter.messagebox.showerror('Non number value!', 'ERROR! You have entered a non number value.')
-    updatedamageb = tkinter.Button(settingwindow, text="Set Damage", command= updatedEnemamage)
-    updatedamageb.place(x=300,y= 429)
- 
- #### geeks4geeks ####
-    
-    def showEnem():
-        selectedEnem_weapon = cbEnem.get()
-        enemy.weapon = selectedEnem_weapon 
-        lblEnem.config(text=f"Weapon set to: {selectedEnem_weapon}")  
-        print(enemy.weapon)
-    
-    WeaponSelectEnemy = ["None", "Sword", "Gun"]
+    #### level select setup End ####
 
 
-    cbEnem = ttk.Combobox(settingwindow, values=WeaponSelectEnemy)
-    cbEnem.set(f"{enemy.weapon}")
-    cbEnem.place(x=151, y=470)
-    confirmEnemweap = tkinter.Button(settingwindow, text="Set Weapon", command=showEnem)
-    confirmEnemweap.place(x=300, y=470)
-    lblEnem = tkinter.Label(settingwindow, text="")
-    lblEnem.place(x=151, y=495)
-    weaponEnemlabl = tkinter.Label(settingwindow, text= "Enemy Weapon:")
-    weaponEnemlabl.place(x=50, y = 470)
-    
-    #### geeks4geeks ####
-
-    rngEnemylabel = tkinter.Label(settingwindow, text = "Enemy RNG:")
-    rngEnemylabel.place(x=50, y= 520)
-    rngEnemy_entry = tkinter.Entry(settingwindow)
-    rngEnemy_entry.place(x=160, y=520)
-    rngEnemy_entry.insert(0, str(enemy.rng))
-    def rngEnem():
-        try:
-            newEnemy_rng = int(rngEnemy_entry.get())
-            if newEnemy_rng <= 0 or newEnemy_rng > 100:
-                tkinter.messagebox.showerror('Out of range', 'You inputted an out of range number! range: 1-100')
-            else:
-                enemy.rng = newEnemy_rng
-                tkinter.messagebox.showinfo('Success!', 'RNG Changed Successfully!')
-        except ValueError:
-            tkinter.messagebox.showerror('Non number value!', 'ERROR! You have entered a non number value.')
-    updatedrngb = tkinter.Button(settingwindow, text="Set RNG", command= rngEnem)
-    updatedrngb.place(x=300,y= 519)
-        
 #### UI buttons handling ####
 
 
-
-
 #### main menu UI ####
+def temp():
+    pass
 logo = tkinter.PhotoImage(file="Media/logo.png")  
 logolabel = tkinter.Label(window, image=logo)
 logolabel.place(x=0, y=0)  # initial creation, will be overidden later 
 playbutton = tkinter.Button(window, text= "Play", background='grey', height= 2, width= 21, command=playpressed)
-settingsbutton = tkinter.Button(window, text= "Settings", background='grey', height= 2, width= 21, command = settingspressed)
+settingsbuttonmainmenu = tkinter.Button(window, text= "Settings", background='grey', height= 2, width= 21, command = temp)
 exitbutton = tkinter.Button(window, text='Exit', background='grey', height= 2, width= 21, command= exitpressed)
+
+
+
 
 
 def center_logo(item, window_width, y_position):
@@ -302,9 +352,8 @@ def center_item(item, window_width, y_position):
 
 center_logo(logolabel, 950, 70) 
 center_item(playbutton, 950, 340)
-center_item(settingsbutton, 950, 440)
+center_item(settingsbuttonmainmenu, 950, 440)
 center_item(exitbutton, 950, 540)
-
 #### handling of centering ####
 
 def savedata():
