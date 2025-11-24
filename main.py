@@ -3,7 +3,10 @@ from tkinter import ttk
 import tkinter.messagebox
 import pickle
 from PIL import Image, ImageTk
+import random
+
 saveloc = "Data/game_data.dat"
+
 def loadData():
     try:
         with open(saveloc, 'rb') as file:
@@ -57,11 +60,26 @@ class Enemparams():
         self.rng = rng
         self.weapon = weapon
 
+class LevelEnemparams():
+
+    def __init__(self,health,damage,rng,weapon):
+        self.health = health
+        self.damage = damage
+        self.rng = rng
+        self.weapon = weapon
+
+class LevelPlayerparams():
+
+    def __init__(self, health, damage, weapon):
+        self.health = health
+        self.damage = damage
+        self.weapon = weapon
+
 
 #### player and enemy obj creation #### 
 
-player = Playerparams(gamedata['Playerhealth'], gamedata['Playerdmg'], gamedata['Playerweap'])
-enemy = Enemparams(gamedata['Enemhealth'], gamedata['Enemdmg'], gamedata['Enemrng'], gamedata['Enemweap'])
+player = Playerparams(gamedata['Playerhealth'], gamedata['Playerdmg'], gamedata['Playerweap']) # CUSTOM GAME PLAYER!!!
+enemy = Enemparams(gamedata['Enemhealth'], gamedata['Enemdmg'], gamedata['Enemrng'], gamedata['Enemweap']) # CUSTOM GAME ENEMY!!!
 
 
 
@@ -81,6 +99,15 @@ def playpressed():
 
     selectlevlabel = tkinter.Label(playwindow, text="Select Level:", font=('Arial', 15, 'bold'))
     selectlevlabel.place(x=420, y=100)
+    
+    ##################################
+    ###      EASY LEVEL LOGIC      ###
+    ##################################
+
+    def easylevelpress():
+        easyenem = LevelEnemparams(health=50, damage=random.randint(1,5), rng=25, weapon="None")
+        easyplayer = LevelPlayerparams(health=100, damage=random.randint(1,15), weapon="Gun")
+
 
     easylev = tkinter.Button(playwindow, text="Easy", background="Green", activebackground="Dark Green", height=2, width=21)
     easylev.place(x=150, y=200)
@@ -272,7 +299,8 @@ def playpressed():
 
     ##################################
     #### CUSTOM GAME SETTINGS END #### 
-    ##################################
+    ##################################   
+
     def backmainpress():
         playwindow.destroy()
     backmain = tkinter.Button(playwindow, text="Back to Menu", background="Gray", activebackground="Dark Gray", height=2, width=21, command=backmainpress)
@@ -299,7 +327,7 @@ exitbutton = tkinter.Button(window, text='Exit', background='grey', height= 2, w
 
 
 def center_logo(item, window_width, y_position):
-    item.update_idletasks() 
+    item.update_idletasks() # AI
     item_width = item.winfo_width()
     x_position = (window_width - item_width) // 2
     item.place(x=x_position, y=y_position)
@@ -320,6 +348,7 @@ center_logo(logolabel, 950, 70)
 center_item(playbutton, 950, 340)
 center_item(settingsbuttonmainmenu, 950, 440)
 center_item(exitbutton, 950, 540)
+
 #### handling of centering ####
 
 def savedata():
