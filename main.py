@@ -81,6 +81,12 @@ class LevelPlayerparams():
 player = Playerparams(gamedata['Playerhealth'], gamedata['Playerdmg'], gamedata['Playerweap']) # CUSTOM GAME PLAYER!!!
 enemy = Enemparams(gamedata['Enemhealth'], gamedata['Enemdmg'], gamedata['Enemrng'], gamedata['Enemweap']) # CUSTOM GAME ENEMY!!!
 
+    ##################################
+    ###       BATTLE LOGIC         ###
+    ##################################
+
+def mainfight(enemy, player):
+    pass
 
 
 #### UI buttons handling ####
@@ -107,6 +113,8 @@ def playpressed():
     def easylevelpress():
         easyenem = LevelEnemparams(health=50, damage=random.randint(1,5), rng=25, weapon="None")
         easyplayer = LevelPlayerparams(health=100, damage=random.randint(1,15), weapon="Gun")
+        
+        mainfight(easyenem, easyplayer)
 
 
     easylev = tkinter.Button(playwindow, text="Easy", background="Green", activebackground="Dark Green", height=2, width=21)
