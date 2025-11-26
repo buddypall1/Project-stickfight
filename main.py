@@ -133,12 +133,12 @@ def playpressed():
         settingwindow.resizable(0, 0)
         settingwindow.geometry("650x650")
 
-        playersprite = tkinter.PhotoImage(file="Media\\playersprite.png")
+        playersprite = tkinter.PhotoImage(file="Media/playersprite.png") 
         playersprlabel = tkinter.Label(settingwindow, image=playersprite)
         playersprlabel.place(x=440, y=100)
         playersprlabel.image = playersprite
 
-        Enemsprite = tkinter.PhotoImage(file="Media\\enemysprite.png")
+        Enemsprite = tkinter.PhotoImage(file="Media/enemysprite.png")
         Enemsprlabel = tkinter.Label(settingwindow, image=Enemsprite)
         Enemsprlabel.place(x=440, y=370)
         Enemsprlabel.image = Enemsprite
