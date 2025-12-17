@@ -62,19 +62,20 @@ class Enemparams():
 
 class LevelEnemparams():
 
-    def __init__(self,health,damage,rng,weapon):
+    def __init__(self,health,damage,rng,weapon,healsamm):
         self.health = health
         self.damage = damage
         self.rng = rng
         self.weapon = weapon
+        self.healsamm = healsamm
 
 class LevelPlayerparams():
 
-    def __init__(self, health, damage, weapon):
+    def __init__(self, health, damage, weapon,healsamm):
         self.health = health
         self.damage = damage
         self.weapon = weapon
-
+        self.healsamm = healsamm
 
 #### player and enemy obj creation #### 
 
@@ -86,7 +87,12 @@ enemy = Enemparams(gamedata['Enemhealth'], gamedata['Enemdmg'], gamedata['Enemrn
     ##################################
 
 def mainfight(enemy, player):
-    pass
+    battlewindow = tkinter.Toplevel(window)
+    battlewindow.title("Battle!")
+    battlewindow.resizable(0, 0)
+    battlewindow.geometry("1080x800")
+
+
 
 
 #### UI buttons handling ####
@@ -111,19 +117,37 @@ def playpressed():
     ##################################
 
     def easylevelpress():
-        easyenem = LevelEnemparams(health=50, damage=random.randint(1,5), rng=25, weapon="None")
-        easyplayer = LevelPlayerparams(health=100, damage=random.randint(1,15), weapon="Gun")
-        
+        easyenem = LevelEnemparams(health=50, damage=random.randint(1,5), rng=25, weapon="None", healsamm=2)
+        easyplayer = LevelPlayerparams(health=100, damage=random.randint(1,15), weapon="Gun", healsamm=10)
+        playwindow.destroy()
         mainfight(easyenem, easyplayer)
+    
+    def mediumlevelpress():
+        mediumenem = LevelEnemparams(health=100, damage=random.randint(1,10), rng=35, weapon="Sword", healsamm=5)
+        mediumplayer = LevelPlayerparams(health=100, damage=random.randint(1,10), weapon="Sword", healsamm=5)
+        playwindow.destroy()
+        mainfight(mediumenem,mediumplayer)
+    
+    def hardlevelpress():
+        hardenem= LevelEnemparams(health=150, damage=random.randint(3,15), rng=45, weapon="Gun",healsamm=8)
+        hardplayer = LevelPlayerparams(health=85, damage=random.randint(2,13),weapon="None",healsamm=3)
+        playwindow.destroy()
+        mainfight(hardenem,hardplayer)
+
+    def veryhardlevelpress():
+        vhardenem= LevelEnemparams(health=200, damage=random.randint(5,20), rng=70, weapon="Gun",healsamm=10)
+        vhardplayer = LevelPlayerparams(health=50,damage=random.randint(3,15),weapon="None",healsamm=1)
+        playwindow.destroy()
+        mainfight(vhardenem,vhardplayer)
 
 
-    easylev = tkinter.Button(playwindow, text="Easy", background="Green", activebackground="Dark Green", height=2, width=21)
+    easylev = tkinter.Button(playwindow, text="Easy", background="Green", activebackground="Dark Green", height=2, width=21, command=easylevelpress)
     easylev.place(x=150, y=200)
-    mediumlev = tkinter.Button(playwindow, text="Medium", background="Yellow", activebackground="Goldenrod", height=2, width=21)
+    mediumlev = tkinter.Button(playwindow, text="Medium", background="Yellow", activebackground="Goldenrod", height=2, width=21, command=mediumlevelpress)
     mediumlev.place(x=320, y=200)
-    hardlev = tkinter.Button(playwindow, text="Hard", background="Orange", activebackground="Orange3", height=2, width=21)
+    hardlev = tkinter.Button(playwindow, text="Hard", background="Orange", activebackground="Orange3", height=2, width=21, command=hardlevelpress)
     hardlev.place(x=490, y=200)
-    vhardlev = tkinter.Button(playwindow, text="Very Hard", background="Red", activebackground="Red3", height=2, width=21)
+    vhardlev = tkinter.Button(playwindow, text="Very Hard", background="Red", activebackground="Red3", height=2, width=21, command=veryhardlevelpress)
     vhardlev.place(x=660, y=200)
     inflev = tkinter.Button(playwindow, text="Infinite", background="Light Blue", activebackground="RoyalBlue1", height=2, width=21)
     inflev.place(x=321, y=250)
@@ -151,8 +175,15 @@ def playpressed():
         Enemsprlabel.place(x=440, y=370)
         Enemsprlabel.image = Enemsprite
         
-        confirmbuttn = tkinter.Button(settingwindow, text="Play", background='grey', height=2,width=21)
+        def confirmpress():
+            settingwindow.destroy()
+            playwindow.destroy()
+            mainfight(player,enemy)
+        
+        confirmbuttn = tkinter.Button(settingwindow, text="Play", background='grey', height=2,width=21, command=confirmpress)
         confirmbuttn.place(x=490, y=20)
+
+
         def exitsett():
             settingwindow.destroy()
 
