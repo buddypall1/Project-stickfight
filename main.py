@@ -44,43 +44,47 @@ window.geometry("950x700")
 
 class Playerparams():
 
-    def __init__(self, health, damage, weapon):
+    def __init__(self, health, damage, weapon,healsamm):
         self.health = health
         self.damage = damage
         self.weapon = weapon
+        self.healsamm= healsamm
     
     def __str__(self):
         return f'{self.weapon} {self.damage} {self.weapon}'
 
 class Enemparams():
 
-    def __init__(self, health, damage, rng, weapon):
+    def __init__(self, health, damage, rng, weapon,healsamm):
         self.health= health
         self.damage = damage
         self.rng = rng
         self.weapon = weapon
+        self.healsamm= healsamm
 
 class LevelEnemparams():
 
-    def __init__(self,health,damage,rng,weapon,healsamm):
+    def __init__(self,health,damage,rng,weapon,healsamm,defense):
         self.health = health
         self.damage = damage
         self.rng = rng
         self.weapon = weapon
         self.healsamm = healsamm
+        self.defense = defense
 
 class LevelPlayerparams():
 
-    def __init__(self, health, damage, weapon,healsamm):
+    def __init__(self, health, damage, weapon,healsamm,defense):
         self.health = health
         self.damage = damage
         self.weapon = weapon
         self.healsamm = healsamm
+        self.defense = defense
 
 #### player and enemy obj creation #### 
 
-player = Playerparams(gamedata['Playerhealth'], gamedata['Playerdmg'], gamedata['Playerweap']) # CUSTOM GAME PLAYER!!!
-enemy = Enemparams(gamedata['Enemhealth'], gamedata['Enemdmg'], gamedata['Enemrng'], gamedata['Enemweap']) # CUSTOM GAME ENEMY!!!
+player = Playerparams(gamedata['Playerhealth'], gamedata['Playerdmg'], gamedata['Playerweap'],1) # CUSTOM GAME PLAYER!!! last line is healsamm placeholder
+enemy = Enemparams(gamedata['Enemhealth'], gamedata['Enemdmg'], gamedata['Enemrng'], gamedata['Enemweap'], 1) # CUSTOM GAME ENEMY!!! last line is healsamm placeholder
 
     ##################################
     ###       BATTLE LOGIC         ###
@@ -92,8 +96,33 @@ def mainfight(enemy, player):
     battlewindow.resizable(0, 0)
     battlewindow.geometry("1080x800")
 
-
-
+    playersprite = tkinter.PhotoImage(file="Media/playersprite.png") 
+    playersprlabel = tkinter.Label(battlewindow, image=playersprite)
+    playersprlabel.place(x=200, y=120)
+    playersprlabel.image = playersprite
+    Enemsprite = tkinter.PhotoImage(file="Media/enemysprite.png")
+    Enemsprlabel = tkinter.Label(battlewindow, image=Enemsprite)
+    Enemsprlabel.place(x=800, y=120)
+    Enemsprlabel.image = Enemsprite
+    playerhealthlabel = tkinter.Label(battlewindow, text=f"HP: {player.health}", font=('Arial', 10, 'bold'))
+    playerhealthlabel.place(x=225,y=70)
+    enemyhealthlabel = tkinter.Label(battlewindow, text=f"HP: {enemy.health}", font=('Arial', 10, 'bold'))
+    enemyhealthlabel.place(x=835,y=70)
+    turncountplaceholder = None
+    turnlabel = tkinter.Label(battlewindow, text=f"KOLO:{turncountplaceholder}",font=('Aril', 20, 'bold'))
+    turnlabel.place(x=460,y=50)
+    fightbutton = tkinter.Button(battlewindow, text="Útoč",background='grey', height=2,width=21)
+    fightbutton.place(x=220,y=400)
+    itembutton= tkinter.Button(battlewindow, text="Použi bonus",background='grey', height=2,width=21)
+    itembutton.place(x=400, y=400)
+    itemslabel = tkinter.Label(battlewindow, text=f"Zostavajuce bonusy: {player.healsamm}")
+    itemslabel.place(x=420, y=450)
+    defendbutton = tkinter.Button(battlewindow, text="Defend",background='grey', height=2,width=21)
+    defendbutton.place(x=580, y=400)
+    skipturnbutton = tkinter.Button(battlewindow, text="Skip Turn",background='grey', height=2,width=21)
+    skipturnbutton.place(x=760,y=400)
+    UIwarn = tkinter.Label(battlewindow,text="PLACEHOLDER UI!!!\nVSETKO TU BUDE VYZERAT LEPSIE!!\nTOTO JE LEN NA TESTOVANIE!!\nBUTTONY ZATIAL NEFUNGUJU\n ALE PROGRAM CITA\n HP UZIVATELA A NEPRIATELA",font=('Arial', 30,'bold'))
+    UIwarn.place(x=180, y=500)
 
 #### UI buttons handling ####
 def exitpressed():
@@ -111,32 +140,28 @@ def playpressed():
 
     selectlevlabel = tkinter.Label(playwindow, text="Select Level:", font=('Arial', 15, 'bold'))
     selectlevlabel.place(x=420, y=100)
-    
-    ##################################
-    ###      EASY LEVEL LOGIC      ###
-    ##################################
 
     def easylevelpress():
-        easyenem = LevelEnemparams(health=50, damage=random.randint(1,5), rng=25, weapon="None", healsamm=2)
-        easyplayer = LevelPlayerparams(health=100, damage=random.randint(1,15), weapon="Gun", healsamm=10)
+        easyenem = LevelEnemparams(health=50, damage=random.randint(1,5), rng=25, weapon="None", healsamm=2, defense=1)
+        easyplayer = LevelPlayerparams(health=100, damage=random.randint(1,15), weapon="Gun", healsamm=10, defense= 1)
         playwindow.destroy()
         mainfight(easyenem, easyplayer)
     
     def mediumlevelpress():
-        mediumenem = LevelEnemparams(health=100, damage=random.randint(1,10), rng=35, weapon="Sword", healsamm=5)
-        mediumplayer = LevelPlayerparams(health=100, damage=random.randint(1,10), weapon="Sword", healsamm=5)
+        mediumenem = LevelEnemparams(health=100, damage=random.randint(1,10), rng=35, weapon="Sword", healsamm=5, defense=1)
+        mediumplayer = LevelPlayerparams(health=100, damage=random.randint(1,10), weapon="Sword", healsamm=5, defense=1)
         playwindow.destroy()
         mainfight(mediumenem,mediumplayer)
     
     def hardlevelpress():
-        hardenem= LevelEnemparams(health=150, damage=random.randint(3,15), rng=45, weapon="Gun",healsamm=8)
-        hardplayer = LevelPlayerparams(health=85, damage=random.randint(2,13),weapon="None",healsamm=3)
+        hardenem= LevelEnemparams(health=150, damage=random.randint(3,15), rng=45, weapon="Gun",healsamm=8, defense=1)
+        hardplayer = LevelPlayerparams(health=85, damage=random.randint(2,13),weapon="None",healsamm=3, defense=1)
         playwindow.destroy()
         mainfight(hardenem,hardplayer)
 
     def veryhardlevelpress():
-        vhardenem= LevelEnemparams(health=200, damage=random.randint(5,20), rng=70, weapon="Gun",healsamm=10)
-        vhardplayer = LevelPlayerparams(health=50,damage=random.randint(3,15),weapon="None",healsamm=1)
+        vhardenem= LevelEnemparams(health=200, damage=random.randint(5,20), rng=70, weapon="Gun",healsamm=10, defense=1)
+        vhardplayer = LevelPlayerparams(health=50,damage=random.randint(3,15),weapon="None",healsamm=1, defense=1)
         playwindow.destroy()
         mainfight(vhardenem,vhardplayer)
 
