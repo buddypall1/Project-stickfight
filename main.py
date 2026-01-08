@@ -122,6 +122,8 @@ def mainfight(enemy, player):
     turncountplaceholder = None
     turnlabel = tkinter.Label(battlewindow, text=f"KOLO:{turncountplaceholder}",font=('Arial', 20, 'bold'))
     turnlabel.place(x=460,y=50)
+    # MOVE BUTTONS TO SEPARATE FUNCTION (possibly within the mainfight one? either that or
+    # making a brand new loop)
     fightbutton = tkinter.Button(battlewindow, text="Útoč",background='grey', command=lambda: attack(player), height=2,width=21)
     fightbutton.place(x=220,y=400)
     itembutton= tkinter.Button(battlewindow, text="Použi bonus",background='grey', height=2,width=21)
