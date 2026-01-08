@@ -6,7 +6,7 @@ from PIL import Image, ImageTk
 import random
 
 saveloc = "Data/game_data.dat"
-
+playerturn = True
 def loadData():
     try:
         with open(saveloc, 'rb') as file:
@@ -90,6 +90,17 @@ enemy = Enemparams(gamedata['Enemhealth'], gamedata['Enemdmg'], gamedata['Enemrn
     ###       BATTLE LOGIC         ###
     ##################################
 
+def attack(player,enemy):
+    global playerturn
+    if playerturn == True:
+        attackpow = random.randint(0, player.damage)
+        print(f"attack button triggered :{attackpow}")
+        playerturn == False
+    if playerturn == False:
+        enemattackpow = random.randint(0, enemy.damage)
+        print(f"attack enemy triggered: {enemattackpow}")
+        playerturn == True
+
 def mainfight(enemy, player):
     battlewindow = tkinter.Toplevel(window)
     battlewindow.title("Battle!")
@@ -109,9 +120,9 @@ def mainfight(enemy, player):
     enemyhealthlabel = tkinter.Label(battlewindow, text=f"HP: {enemy.health}", font=('Arial', 10, 'bold'))
     enemyhealthlabel.place(x=835,y=70)
     turncountplaceholder = None
-    turnlabel = tkinter.Label(battlewindow, text=f"KOLO:{turncountplaceholder}",font=('Aril', 20, 'bold'))
+    turnlabel = tkinter.Label(battlewindow, text=f"KOLO:{turncountplaceholder}",font=('Arial', 20, 'bold'))
     turnlabel.place(x=460,y=50)
-    fightbutton = tkinter.Button(battlewindow, text="Útoč",background='grey', height=2,width=21)
+    fightbutton = tkinter.Button(battlewindow, text="Útoč",background='grey', command=lambda: attack(player), height=2,width=21)
     fightbutton.place(x=220,y=400)
     itembutton= tkinter.Button(battlewindow, text="Použi bonus",background='grey', height=2,width=21)
     itembutton.place(x=400, y=400)
@@ -142,26 +153,26 @@ def playpressed():
     selectlevlabel.place(x=420, y=100)
 
     def easylevelpress():
-        easyenem = LevelEnemparams(health=50, damage=random.randint(1,5), rng=25, weapon="None", healsamm=2, defense=1)
-        easyplayer = LevelPlayerparams(health=100, damage=random.randint(1,15), weapon="Gun", healsamm=10, defense= 1)
+        easyenem = LevelEnemparams(health=50, damage=5, rng=25, weapon="None", healsamm=2, defense=1)
+        easyplayer = LevelPlayerparams(health=100, damage=15, weapon="Gun", healsamm=10, defense= 1)
         playwindow.destroy()
         mainfight(easyenem, easyplayer)
     
     def mediumlevelpress():
-        mediumenem = LevelEnemparams(health=100, damage=random.randint(1,10), rng=35, weapon="Sword", healsamm=5, defense=1)
-        mediumplayer = LevelPlayerparams(health=100, damage=random.randint(1,10), weapon="Sword", healsamm=5, defense=1)
+        mediumenem = LevelEnemparams(health=100, damage=10, rng=35, weapon="Sword", healsamm=5, defense=1)
+        mediumplayer = LevelPlayerparams(health=100, damage=10, weapon="Sword", healsamm=5, defense=1)
         playwindow.destroy()
         mainfight(mediumenem,mediumplayer)
     
     def hardlevelpress():
-        hardenem= LevelEnemparams(health=150, damage=random.randint(3,15), rng=45, weapon="Gun",healsamm=8, defense=1)
-        hardplayer = LevelPlayerparams(health=85, damage=random.randint(2,13),weapon="None",healsamm=3, defense=1)
+        hardenem= LevelEnemparams(health=150, damage=25, rng=45, weapon="Gun",healsamm=8, defense=1)
+        hardplayer = LevelPlayerparams(health=85, damage=15,weapon="None",healsamm=3, defense=1)
         playwindow.destroy()
         mainfight(hardenem,hardplayer)
 
     def veryhardlevelpress():
-        vhardenem= LevelEnemparams(health=200, damage=random.randint(5,20), rng=70, weapon="Gun",healsamm=10, defense=1)
-        vhardplayer = LevelPlayerparams(health=50,damage=random.randint(3,15),weapon="None",healsamm=1, defense=1)
+        vhardenem= LevelEnemparams(health=200, damage=50, rng=70, weapon="Gun",healsamm=10, defense=1)
+        vhardplayer = LevelPlayerparams(health=50,damage=25,weapon="None",healsamm=1, defense=1)
         playwindow.destroy()
         mainfight(vhardenem,vhardplayer)
 
