@@ -86,56 +86,173 @@ class LevelPlayerparams():
 player = Playerparams(gamedata['Playerhealth'], gamedata['Playerdmg'], gamedata['Playerweap'],1) # CUSTOM GAME PLAYER!!! last line is healsamm placeholder
 enemy = Enemparams(gamedata['Enemhealth'], gamedata['Enemdmg'], gamedata['Enemrng'], gamedata['Enemweap'], 1) # CUSTOM GAME ENEMY!!! last line is healsamm placeholder
 
-    ##################################
-    ###       BATTLE LOGIC         ###
-    ##################################
-
-def attack(player,enemy):
-    global playerturn
-    if playerturn == True:
-        attackpow = random.randint(0, player.damage)
-        print(f"attack button triggered :{attackpow}")
-        playerturn == False
-    if playerturn == False:
-        enemattackpow = random.randint(0, enemy.damage)
-        print(f"attack enemy triggered: {enemattackpow}")
-        playerturn == True
+##################################
+###       BATTLE LOGIC         ###
+##################################
 
 def mainfight(enemy, player):
+    global playerturn
+    global fightbutton, defendbutton, itembutton, skipturnbutton
+    global playerhealthlabel, enemyhealthlabel
+    global battlewindow
+    global itemslabel
+    global playerdefending
+    global turncountplaceholder
+    global turnlabel
+
+    battle_player = type(player)(*vars(player).values())
+    battle_enemy = type(enemy)(*vars(enemy).values())
+
     battlewindow = tkinter.Toplevel(window)
     battlewindow.title("Battle!")
     battlewindow.resizable(0, 0)
     battlewindow.geometry("1080x800")
 
+
     playersprite = tkinter.PhotoImage(file="Media/playersprite.png") 
     playersprlabel = tkinter.Label(battlewindow, image=playersprite)
     playersprlabel.place(x=200, y=120)
     playersprlabel.image = playersprite
+
     Enemsprite = tkinter.PhotoImage(file="Media/enemysprite.png")
     Enemsprlabel = tkinter.Label(battlewindow, image=Enemsprite)
     Enemsprlabel.place(x=800, y=120)
     Enemsprlabel.image = Enemsprite
+
+
     playerhealthlabel = tkinter.Label(battlewindow, text=f"HP: {player.health}", font=('Arial', 10, 'bold'))
-    playerhealthlabel.place(x=225,y=70)
+    playerhealthlabel.place(x=225, y=70)
+
     enemyhealthlabel = tkinter.Label(battlewindow, text=f"HP: {enemy.health}", font=('Arial', 10, 'bold'))
-    enemyhealthlabel.place(x=835,y=70)
-    turncountplaceholder = None
-    turnlabel = tkinter.Label(battlewindow, text=f"KOLO:{turncountplaceholder}",font=('Arial', 20, 'bold'))
-    turnlabel.place(x=460,y=50)
-    # MOVE BUTTONS TO SEPARATE FUNCTION (possibly within the mainfight one? either that or
-    # making a brand new loop)
-    fightbutton = tkinter.Button(battlewindow, text="Útoč",background='grey', command=lambda: attack(player), height=2,width=21)
-    fightbutton.place(x=220,y=400)
-    itembutton= tkinter.Button(battlewindow, text="Použi bonus",background='grey', height=2,width=21)
+    enemyhealthlabel.place(x=835, y=70)
+
+    turncountplaceholder = 1
+    turnlabel = tkinter.Label(battlewindow, text=f"KOLO:{turncountplaceholder}", font=('Arial', 20, 'bold'))
+    turnlabel.place(x=460, y=50)
+
+
+    fightbutton = tkinter.Button(battlewindow, text="Útoč", background='grey', height=2, width=21,command=lambda: player_attack(battle_player, battle_enemy))
+    fightbutton.place(x=220, y=400)
+
+    itembutton = tkinter.Button(battlewindow, text="Použi bonus", background='grey',height=2, width=21, command=lambda: player_heal(battle_player))
     itembutton.place(x=400, y=400)
-    itemslabel = tkinter.Label(battlewindow, text=f"Zostavajuce bonusy: {player.healsamm}")
-    itemslabel.place(x=420, y=450)
-    defendbutton = tkinter.Button(battlewindow, text="Defend",background='grey', height=2,width=21)
+
+    defendbutton = tkinter.Button(battlewindow, text="Defend", background='grey',height=2, width=21, command= lambda: player_defend(battle_player))
     defendbutton.place(x=580, y=400)
-    skipturnbutton = tkinter.Button(battlewindow, text="Skip Turn",background='grey', height=2,width=21)
-    skipturnbutton.place(x=760,y=400)
-    UIwarn = tkinter.Label(battlewindow,text="PLACEHOLDER UI!!!\nVSETKO TU BUDE VYZERAT LEPSIE!!\nTOTO JE LEN NA TESTOVANIE!!\nBUTTONY ZATIAL NEFUNGUJU\n ALE PROGRAM CITA\n HP UZIVATELA A NEPRIATELA",font=('Arial', 30,'bold'))
+
+    skipturnbutton = tkinter.Button(battlewindow, text="Skip Turn", background='grey',height=2, width=21, command= lambda: player_skip(battle_player))
+    skipturnbutton.place(x=760, y=400)
+
+    itemslabel = tkinter.Label(battlewindow, text=f"Zostavajuce bonusy: {battle_player.healsamm}")
+    itemslabel.place(x=420, y=450)
+
+    UIwarn = tkinter.Label(battlewindow,text="PLACEHOLDER UI!!!\nVSETKO TU BUDE VYZERAT LEPSIE!!",font=('Arial', 30, 'bold'))
     UIwarn.place(x=180, y=500)
+    playerdefending = False
+    playerturn = True
+    fightbutton.config(state="normal")
+
+def player_skip(player):
+    global playerturn
+    print("Player skipped")
+    playerturn = False
+    set_buttons("disabled")
+    battlewindow.after(1000, lambda: enemy_attack(player, enemy))
+
+def player_defend(player):
+    global playerturn
+    global playerdefending
+    if not playerturn:
+        return
+    
+    playerdefending = True
+    playerturn = False
+    set_buttons("disabled")
+    battlewindow.after(1000, lambda: enemy_attack(player, enemy))
+
+
+def player_heal(player):
+    global playerturn
+
+    if not playerturn or player.healsamm == 0 or player.health == 100:
+        return
+    
+    healpow = random.randint(1, 15)
+    maxheal = 100 - player.health
+    heal = min(healpow, maxheal)
+    player.health += heal
+    player.healsamm -= 1
+    itemslabel.config(text=f"Zostavajuce bonusy: {player.healsamm}")
+    playerhealthlabel.config(text=f"HP: {player.health}")
+    print(f"Player heals for {healpow}")
+    
+    playerturn = False
+    set_buttons("disabled")
+
+    battlewindow.after(1000, lambda: enemy_attack(player, enemy))
+
+    
+
+def player_attack(player, enemy):
+    global playerdefending
+    global playerturn
+    playerdefending = False
+    if not playerturn:
+        return
+
+
+    attackpow = random.randint(1, player.damage)
+    enemy.health -= attackpow
+    enemyhealthlabel.config(text=f"HP: {enemy.health}")
+    print(f"Player attacks for {attackpow}")
+
+    if enemy.health <= 0:
+        print("Enemy defeated!")
+        tkinter.messagebox.showinfo("Victory", "You defeated the enemy!")
+        return
+
+    playerturn = False
+    set_buttons("disabled")
+
+    battlewindow.after(1000, lambda: enemy_attack(player, enemy))
+
+
+def enemy_attack(player, enemy):
+    global playerturn
+    global playerdefending
+    global turncountplaceholder
+    global turnlabel
+    print(f"{playerdefending}")
+    if playerdefending == False:
+        enemattackpow = random.randint(1, enemy.damage)
+    else:  
+        enemattackpow = random.randint(1, enemy.damage // 2)
+        print(f"Defending success! playerdefending={playerdefending}")
+
+    player.health -= enemattackpow
+    playerhealthlabel.config(text=f"HP: {player.health}")
+    print(f"Enemy attacks for {enemattackpow}")
+
+
+    if player.health <= 0:
+        print("Player defeated!")
+        tkinter.messagebox.showinfo("Defeat", "You were defeated!")
+        battlewindow.destroy()
+        return
+
+    playerturn = True
+    set_buttons("normal")
+    turncountplaceholder += 1
+    turnlabel.config(text=f"KOLO:{turncountplaceholder}")
+    
+
+
+
+def set_buttons(state):
+    fightbutton.config(state=state)
+    defendbutton.config(state=state)
+    itembutton.config(state=state)
+    skipturnbutton.config(state=state)
 
 #### UI buttons handling ####
 def exitpressed():
