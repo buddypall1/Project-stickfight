@@ -133,14 +133,14 @@ def mainfight(enemy, player):
     enemyhealthlabel.place(x=835, y=70)
 
     turncountplaceholder = 1
-    turnlabel = tkinter.Label(battlewindow, text=f"KOLO:{turncountplaceholder}", font=('Arial', 20, 'bold'))
+    turnlabel = tkinter.Label(battlewindow, text=f"ROUND:{turncountplaceholder}", font=('Arial', 20, 'bold'))
     turnlabel.place(x=460, y=50)
 
 
-    fightbutton = tkinter.Button(battlewindow, text="Útoč", background='grey', height=2, width=21,command=lambda: player_attack(battle_player, battle_enemy))
+    fightbutton = tkinter.Button(battlewindow, text="Attack", background='grey', height=2, width=21,command=lambda: player_attack(battle_player, battle_enemy))
     fightbutton.place(x=220, y=400)
 
-    itembutton = tkinter.Button(battlewindow, text="Použi bonus", background='grey',height=2, width=21, command=lambda: player_heal(battle_player))
+    itembutton = tkinter.Button(battlewindow, text="Heal", background='grey',height=2, width=21, command=lambda: player_heal(battle_player))
     itembutton.place(x=400, y=400)
 
     defendbutton = tkinter.Button(battlewindow, text="Defend", background='grey',height=2, width=21, command= lambda: player_defend(battle_player))
@@ -149,10 +149,10 @@ def mainfight(enemy, player):
     skipturnbutton = tkinter.Button(battlewindow, text="Skip Turn", background='grey',height=2, width=21, command= lambda: player_skip(battle_player))
     skipturnbutton.place(x=760, y=400)
 
-    itemslabel = tkinter.Label(battlewindow, text=f"Zostavajuce bonusy: {battle_player.healsamm}")
+    itemslabel = tkinter.Label(battlewindow, text=f"Heals left: {battle_player.healsamm}")
     itemslabel.place(x=420, y=450)
 
-    UIwarn = tkinter.Label(battlewindow,text="PLACEHOLDER UI!!!\nVSETKO TU BUDE VYZERAT LEPSIE!!",font=('Arial', 30, 'bold'))
+    UIwarn = tkinter.Label(battlewindow,text="PLACEHOLDER UI!!",font=('Arial', 30, 'bold'))
     UIwarn.place(x=180, y=500)
     playerdefending = False
     playerturn = True
@@ -189,7 +189,7 @@ def player_heal(player):
     heal = min(healpow, maxheal)
     player.health += heal
     player.healsamm -= 1
-    itemslabel.config(text=f"Zostavajuce bonusy: {player.healsamm}")
+    itemslabel.config(text=f"Heals left: {player.healsamm}")
     playerhealthlabel.config(text=f"HP: {player.health}")
     playerstatuslabel.config(text=f"+{heal}", fg="green")
     battlewindow.after(1000, lambda:enemystatuslabel.config(text=""))
@@ -258,7 +258,7 @@ def enemy_attack(player, enemy):
     playerturn = True
     set_buttons("normal")
     turncountplaceholder += 1
-    turnlabel.config(text=f"KOLO:{turncountplaceholder}")
+    turnlabel.config(text=f"ROUND:{turncountplaceholder}")
     
 
 
