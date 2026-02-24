@@ -6,9 +6,9 @@ from PIL import Image, ImageTk
 import random
 
 saveloc = "Data/game_data.dat"
-playerturn = True
-playerdamagelabel = None
-enemydamagelabel = None
+uzivatelovekolo = True
+playerstatuslabel = None
+enemystatuslabel = None
 def loadData():
     try:
         with open(saveloc, 'rb') as file:
@@ -83,136 +83,139 @@ class LevelPlayerparams():
         self.healsamm = healsamm
         self.defense = defense
 
-#### player and enemy obj creation #### 
+#### uzivatel and enemy obj creation #### 
 
-player = Playerparams(gamedata['Playerhealth'], gamedata['Playerdmg'], gamedata['Playerweap'],1) # CUSTOM GAME PLAYER!!! last line is healsamm placeholder
+uzivatel = Playerparams(gamedata['Playerhealth'], gamedata['Playerdmg'], gamedata['Playerweap'],1) # CUSTOM GAME PLAYER!!! last line is healsamm placeholder
 enemy = Enemparams(gamedata['Enemhealth'], gamedata['Enemdmg'], gamedata['Enemrng'], gamedata['Enemweap'], 1) # CUSTOM GAME ENEMY!!! last line is healsamm placeholder
 
 ##################################
 ###       BATTLE LOGIC         ###
 ##################################
 
-def mainfight(enemy, player):
-    global playerturn
+def mainfight(enemy, uzivatel):
+    global uzivatelovekolo
     global fightbutton, defendbutton, itembutton, skipturnbutton
     global playerhealthlabel, enemyhealthlabel
-    global battlewindow
+    global bojoveokno
     global itemslabel
-    global playerdefending
+    global UzivatelObranuje
     global turncountplaceholder
     global turnlabel
-    global playerdamagelabel, enemydamagelabel
+    global playerstatuslabel, enemystatuslabel
 
-    battle_player = type(player)(*vars(player).values())
+    battle_player = type(uzivatel)(*vars(uzivatel).values())
     battle_enemy = type(enemy)(*vars(enemy).values())
 
-    battlewindow = tkinter.Toplevel(window)
-    battlewindow.title("Battle!")
-    battlewindow.resizable(0, 0)
-    battlewindow.geometry("1080x800")
+    bojoveokno = tkinter.Toplevel(window)
+    bojoveokno.title("Battle!")
+    bojoveokno.resizable(0, 0)
+    bojoveokno.geometry("1080x800")
 
 
-    playersprite = tkinter.PhotoImage(file="Media/playersprite.png") 
-    playersprlabel = tkinter.Label(battlewindow, image=playersprite)
-    playersprlabel.place(x=200, y=120)
-    playersprlabel.image = playersprite
-    playerdamagelabel = tkinter.Label(battlewindow, text="", font=('Arial', 14, 'bold'))
-    playerdamagelabel.place(x=300, y=70)
-    enemydamagelabel = tkinter.Label(battlewindow, text="", font=('Arial', 14, 'bold'))
-    enemydamagelabel.place(x=910, y=70)
-    Enemsprite = tkinter.PhotoImage(file="Media/enemysprite.png")
-    Enemsprlabel = tkinter.Label(battlewindow, image=Enemsprite)
-    Enemsprlabel.place(x=800, y=120)
-    Enemsprlabel.image = Enemsprite
+    uzivatelsprite = tkinter.PhotoImage(file="Media/uzivatelsprite.png") 
+    uzivatelspritelabel = tkinter.Label(bojoveokno, image=uzivatelsprite)
+    uzivatelspritelabel.place(x=200, y=120)
+    uzivatelspritelabel.image = uzivatelsprite
+    playerstatuslabel = tkinter.Label(bojoveokno, text="", font=('Arial', 14, 'bold'))
+    playerstatuslabel.place(x=300, y=70)
+    enemystatuslabel = tkinter.Label(bojoveokno, text="", font=('Arial', 14, 'bold'))
+    enemystatuslabel.place(x=910, y=70)
+    nepriatelsprite = tkinter.PhotoImage(file="Media/nepriatelsprite.png")
+    nepriatelspritelabel = tkinter.Label(bojoveokno, image=nepriatelsprite)
+    nepriatelspritelabel.place(x=800, y=120)
+    nepriatelspritelabel.image = nepriatelsprite
 
 
-    playerhealthlabel = tkinter.Label(battlewindow, text=f"HP: {player.health}", font=('Arial', 10, 'bold'))
+    playerhealthlabel = tkinter.Label(bojoveokno, text=f"HP: {uzivatel.health}", font=('Arial', 10, 'bold'))
     playerhealthlabel.place(x=225, y=70)
 
-    enemyhealthlabel = tkinter.Label(battlewindow, text=f"HP: {enemy.health}", font=('Arial', 10, 'bold'))
+    enemyhealthlabel = tkinter.Label(bojoveokno, text=f"HP: {enemy.health}", font=('Arial', 10, 'bold'))
     enemyhealthlabel.place(x=835, y=70)
 
     turncountplaceholder = 1
-    turnlabel = tkinter.Label(battlewindow, text=f"KOLO:{turncountplaceholder}", font=('Arial', 20, 'bold'))
+    turnlabel = tkinter.Label(bojoveokno, text=f"KOLO:{turncountplaceholder}", font=('Arial', 20, 'bold'))
     turnlabel.place(x=460, y=50)
 
 
-    fightbutton = tkinter.Button(battlewindow, text="Útoč", background='grey', height=2, width=21,command=lambda: player_attack(battle_player, battle_enemy))
+    fightbutton = tkinter.Button(bojoveokno, text="Útoč", background='grey', height=2, width=21,command=lambda: UzivatelUtoc(battle_player, battle_enemy))
     fightbutton.place(x=220, y=400)
 
-    itembutton = tkinter.Button(battlewindow, text="Použi bonus", background='grey',height=2, width=21, command=lambda: player_heal(battle_player))
+    itembutton = tkinter.Button(bojoveokno, text="Použi bonus", background='grey',height=2, width=21, command=lambda: UzivatelBonus(battle_player))
     itembutton.place(x=400, y=400)
 
-    defendbutton = tkinter.Button(battlewindow, text="Defend", background='grey',height=2, width=21, command= lambda: player_defend(battle_player))
+    defendbutton = tkinter.Button(bojoveokno, text="Obránenie", background='grey',height=2, width=21, command= lambda: UzivatelObrana(battle_player))
     defendbutton.place(x=580, y=400)
 
-    skipturnbutton = tkinter.Button(battlewindow, text="Skip Turn", background='grey',height=2, width=21, command= lambda: player_skip(battle_player))
+    skipturnbutton = tkinter.Button(bojoveokno, text="Preskoč kolo", background='grey',height=2, width=21, command= lambda: UzivatelPreskoc(battle_player))
     skipturnbutton.place(x=760, y=400)
 
-    itemslabel = tkinter.Label(battlewindow, text=f"Zostavajuce bonusy: {battle_player.healsamm}")
+    itemslabel = tkinter.Label(bojoveokno, text=f"Zostavajuce bonusy: {battle_player.healsamm}")
     itemslabel.place(x=420, y=450)
 
-    UIwarn = tkinter.Label(battlewindow,text="PLACEHOLDER UI!!!\nVSETKO TU BUDE VYZERAT LEPSIE!!",font=('Arial', 30, 'bold'))
+    UIwarn = tkinter.Label(bojoveokno,text="PLACEHOLDER UI!!!\nVSETKO TU BUDE VYZERAT LEPSIE!!",font=('Arial', 30, 'bold'))
     UIwarn.place(x=180, y=500)
-    playerdefending = False
-    playerturn = True
+    UzivatelObranuje = False
+    uzivatelovekolo = True
     fightbutton.config(state="normal")
 
-def player_skip(player):
-    global playerturn
+def UzivatelPreskoc(uzivatel):
+    global uzivatelovekolo
     print("Player skipped")
-    playerturn = False
+    uzivatelovekolo = False
     set_buttons("disabled")
-    battlewindow.after(1000, lambda: enemy_attack(player, enemy))
+    bojoveokno.after(1000, lambda: enemy_attack(uzivatel, enemy))
 
-def player_defend(player):
-    global playerturn
-    global playerdefending
-    if not playerturn:
+def UzivatelObrana(uzivatel):
+    global uzivatelovekolo
+    global UzivatelObranuje
+    if not uzivatelovekolo:
         return
     
-    playerdefending = True
-    playerturn = False
+    UzivatelObranuje = True
+    uzivatelovekolo = False
     set_buttons("disabled")
-    battlewindow.after(1000, lambda: enemy_attack(player, enemy))
+    bojoveokno.after(1000, lambda: enemy_attack(uzivatel, enemy))
 
 
-def player_heal(player):
-    global playerturn
+def UzivatelBonus(uzivatel):
+    global uzivatelovekolo
+    global playerstatuslabel
 
-    if not playerturn or player.healsamm == 0 or player.health == 100:
+    if not uzivatelovekolo or uzivatel.healsamm == 0 or uzivatel.health == 100:
         return
     
     healpow = random.randint(1, 15)
-    maxheal = 100 - player.health
+    maxheal = 100 - uzivatel.health
     heal = min(healpow, maxheal)
-    player.health += heal
-    player.healsamm -= 1
-    itemslabel.config(text=f"Zostavajuce bonusy: {player.healsamm}")
-    playerhealthlabel.config(text=f"HP: {player.health}")
+    uzivatel.health += heal
+    uzivatel.healsamm -= 1
+    itemslabel.config(text=f"Zostavajuce bonusy: {uzivatel.healsamm}")
+    playerhealthlabel.config(text=f"HP: {uzivatel.health}")
+    playerstatuslabel.config(text=f"+{heal}", fg="green")
+    bojoveokno.after(1000, lambda:enemystatuslabel.config(text=""))
     print(f"Player heals for {healpow}")
     
-    playerturn = False
+    uzivatelovekolo = False
     set_buttons("disabled")
 
-    battlewindow.after(1000, lambda: enemy_attack(player, enemy))
+    bojoveokno.after(1000, lambda: enemy_attack(uzivatel, enemy))
 
     
 
-def player_attack(player, enemy):
-    global playerdefending
-    global playerturn
-    global enemydamagelabel
-    playerdefending = False
-    if not playerturn:
+def UzivatelUtoc(uzivatel, enemy):
+    global UzivatelObranuje
+    global uzivatelovekolo
+    global enemystatuslabel
+    UzivatelObranuje = False
+    if not uzivatelovekolo:
         return
 
 
-    attackpow = random.randint(1, player.damage)
+    attackpow = random.randint(1, uzivatel.damage)
     enemy.health -= attackpow
     enemyhealthlabel.config(text=f"HP: {enemy.health}")
-    enemydamagelabel.config(text=f"-{attackpow}", fg="red")
-    battlewindow.after(1000, lambda:enemydamagelabel.config(text=""))
+    enemystatuslabel.config(text=f"-{attackpow}", fg="red")
+    bojoveokno.after(1000, lambda:enemystatuslabel.config(text=""))
     print(f"Player attacks for {attackpow}")
 
     if enemy.health <= 0:
@@ -220,39 +223,39 @@ def player_attack(player, enemy):
         tkinter.messagebox.showinfo("Victory", "You defeated the enemy!")
         return
 
-    playerturn = False
+    uzivatelovekolo = False
     set_buttons("disabled")
 
-    battlewindow.after(1000, lambda: enemy_attack(player, enemy))
+    bojoveokno.after(1000, lambda: enemy_attack(uzivatel, enemy))
 
 
-def enemy_attack(player, enemy):
-    global playerturn
-    global playerdefending
+def enemy_attack(uzivatel, enemy):
+    global uzivatelovekolo
+    global UzivatelObranuje
     global turncountplaceholder
     global turnlabel
-    global playerdamagelabel
-    print(f"{playerdefending}")
-    if playerdefending == False:
+    global playerstatuslabel
+    print(f"{UzivatelObranuje}")
+    if UzivatelObranuje == False:
         enemattackpow = random.randint(1, enemy.damage)
     else:  
         enemattackpow = random.randint(1, enemy.damage // 2)
-        print(f"Defending success! playerdefending={playerdefending}")
+        print(f"Defending success! UzivatelObranuje={UzivatelObranuje}")
 
-    player.health -= enemattackpow
-    playerhealthlabel.config(text=f"HP: {player.health}")
-    playerdamagelabel.config(text=f"-{enemattackpow}", fg="red")
-    battlewindow.after(1000, lambda: playerdamagelabel.config(text=""))
+    uzivatel.health -= enemattackpow
+    playerhealthlabel.config(text=f"HP: {uzivatel.health}")
+    playerstatuslabel.config(text=f"-{enemattackpow}", fg="red")
+    bojoveokno.after(1000, lambda: playerstatuslabel.config(text=""))
     print(f"Enemy attacks for {enemattackpow}")
 
 
-    if player.health <= 0:
+    if uzivatel.health <= 0:
         print("Player defeated!")
         tkinter.messagebox.showinfo("Defeat", "You were defeated!")
-        battlewindow.destroy()
+        bojoveokno.destroy()
         return
 
-    playerturn = True
+    uzivatelovekolo = True
     set_buttons("normal")
     turncountplaceholder += 1
     turnlabel.config(text=f"KOLO:{turncountplaceholder}")
@@ -273,14 +276,14 @@ def exitpressed():
 
     
 def playpressed():
-    global player, enemy
+    global uzivatel, enemy
 
     playwindow = tkinter.Toplevel(window)
     playwindow.resizable(0,0)
     playwindow.title('TmEsg')
     playwindow.geometry('950x700')
 
-    selectlevlabel = tkinter.Label(playwindow, text="Select Level:", font=('Arial', 15, 'bold'))
+    selectlevlabel = tkinter.Label(playwindow, text="Vyber si level:", font=('Arial', 15, 'bold'))
     selectlevlabel.place(x=420, y=100)
 
     def easylevelpress():
@@ -308,87 +311,89 @@ def playpressed():
         mainfight(vhardenem,vhardplayer)
 
 
-    easylev = tkinter.Button(playwindow, text="Easy", background="Green", activebackground="Dark Green", height=2, width=21, command=easylevelpress)
+    easylev = tkinter.Button(playwindow, text="Ľahké", background="Green", activebackground="Dark Green", height=2, width=21, command=easylevelpress)
     easylev.place(x=150, y=200)
-    mediumlev = tkinter.Button(playwindow, text="Medium", background="Yellow", activebackground="Goldenrod", height=2, width=21, command=mediumlevelpress)
+    mediumlev = tkinter.Button(playwindow, text="Stredné", background="Yellow", activebackground="Goldenrod", height=2, width=21, command=mediumlevelpress)
     mediumlev.place(x=320, y=200)
-    hardlev = tkinter.Button(playwindow, text="Hard", background="Orange", activebackground="Orange3", height=2, width=21, command=hardlevelpress)
+    hardlev = tkinter.Button(playwindow, text="Ťažké", background="Orange", activebackground="Orange3", height=2, width=21, command=hardlevelpress)
     hardlev.place(x=490, y=200)
-    vhardlev = tkinter.Button(playwindow, text="Very Hard", background="Red", activebackground="Red3", height=2, width=21, command=veryhardlevelpress)
+    vhardlev = tkinter.Button(playwindow, text="Veľmi Ťažké", background="Red", activebackground="Red3", height=2, width=21, command=veryhardlevelpress)
     vhardlev.place(x=660, y=200)
-    inflev = tkinter.Button(playwindow, text="Infinite", background="Light Blue", activebackground="RoyalBlue1", height=2, width=21)
+    inflev = tkinter.Button(playwindow, text="Nekonečné", background="Light Blue", activebackground="RoyalBlue1", height=2, width=21)
     inflev.place(x=321, y=250)
+
 
 
     ##################################
     ###    CUSTOM GAME SETTINGS    ###
     ##################################
 
-    def customlevpress():
-        global player, enemy
+    def vlastnahrapress():
+        global uzivatel, enemy
+        
 
-        settingwindow = tkinter.Toplevel(window)
-        settingwindow.title("Settings")
-        settingwindow.resizable(0, 0)
-        settingwindow.geometry("650x650")
+        customlevelwindow = tkinter.Toplevel(window)
+        customlevelwindow.title("Custom Game")
+        customlevelwindow.resizable(0, 0)
+        customlevelwindow.geometry("650x650")
 
-        playersprite = tkinter.PhotoImage(file="Media/playersprite.png") 
-        playersprlabel = tkinter.Label(settingwindow, image=playersprite)
-        playersprlabel.place(x=440, y=100)
-        playersprlabel.image = playersprite
+        uzivatelsprite = tkinter.PhotoImage(file="Media/uzivatelsprite.png") 
+        uzivatelspritelabel = tkinter.Label(customlevelwindow, image=uzivatelsprite)
+        uzivatelspritelabel.place(x=440, y=100)
+        uzivatelspritelabel.image = uzivatelsprite
 
-        Enemsprite = tkinter.PhotoImage(file="Media/enemysprite.png")
-        Enemsprlabel = tkinter.Label(settingwindow, image=Enemsprite)
-        Enemsprlabel.place(x=440, y=370)
-        Enemsprlabel.image = Enemsprite
+        nepriatelsprite = tkinter.PhotoImage(file="Media/nepriatelsprite.png")
+        nepriatelspritelabel = tkinter.Label(customlevelwindow, image=nepriatelsprite)
+        nepriatelspritelabel.place(x=440, y=370)
+        nepriatelspritelabel.image = nepriatelsprite
         
         def confirmpress():
-            settingwindow.destroy()
+            customlevelwindow.destroy()
             playwindow.destroy()
-            mainfight(player,enemy)
+            mainfight(enemy,uzivatel)
         
-        confirmbuttn = tkinter.Button(settingwindow, text="Play", background='grey', height=2,width=21, command=confirmpress)
+        confirmbuttn = tkinter.Button(customlevelwindow, text="Hrať", background='grey', height=2,width=21, command=confirmpress)
         confirmbuttn.place(x=490, y=20)
 
 
         def exitsett():
-            settingwindow.destroy()
+            customlevelwindow.destroy()
 
-        exitbut = tkinter.Button(settingwindow, text="Back", background='grey', height=2, width=21, command=exitsett)
+        exitbut = tkinter.Button(customlevelwindow, text="Back", background='grey', height=2, width=21, command=exitsett)
         exitbut.place(x=4, y=20)
 
-        settingslabel = tkinter.Label(settingwindow, text="Settings", font=('Arial', 25))
-        settingslabel.place(x=245, y=40)
+        nastavenialabel = tkinter.Label(customlevelwindow, text="Nastavenia", font=('Arial', 25))
+        nastavenialabel.place(x=245, y=40)
 
         #### PLAYER HEALTH ####
-        playerlabel = tkinter.Label(settingwindow, text="Player", font=('Arial', 25))
-        playerlabel.place(x=160, y=100)
+        hraclabel = tkinter.Label(customlevelwindow, text="Player", font=('Arial', 25))
+        hraclabel.place(x=160, y=100)
 
-        health_label = tkinter.Label(settingwindow, text="Player Health:")
-        health_label.place(x=50, y=150)
-        health_entry = tkinter.Entry(settingwindow)
-        health_entry.place(x=160, y=150)
-        health_entry.insert(0, str(player.health))
+        zivotlabel = tkinter.Label(customlevelwindow, text="Player Health:")
+        zivotlabel.place(x=50, y=150)
+        zivotentry = tkinter.Entry(customlevelwindow)
+        zivotentry.place(x=160, y=150)
+        zivotentry.insert(0, str(uzivatel.health))
 
-        def update_health():
+        def aktualizujzivot():
             try:
-                new_health = int(health_entry.get())
-                if new_health <= 0 or new_health > 100:
+                novyzivot = int(zivotentry.get())
+                if novyzivot <= 0 or novyzivot > 100:
                     tkinter.messagebox.showerror('Out of range', 'Range: 1-100')
                 else:
-                    player.health = new_health
+                    uzivatel.health = novyzivot
                     tkinter.messagebox.showinfo('Success!', 'Health Changed Successfully!')
             except ValueError:
                 tkinter.messagebox.showerror('Non number value!', 'You entered a non-number.')
 
-        tkinter.Button(settingwindow, text="Set Health", command=update_health).place(x=300, y=150)
+        tkinter.Button(customlevelwindow, text="Set Health", command=aktualizujzivot).place(x=300, y=150)
 
         #### PLAYER DAMAGE ####
-        damagelabel = tkinter.Label(settingwindow, text="Player Damage:")
+        damagelabel = tkinter.Label(customlevelwindow, text="Player Damage:")
         damagelabel.place(x=50, y=200)
-        damage_entry = tkinter.Entry(settingwindow)
+        damage_entry = tkinter.Entry(customlevelwindow)
         damage_entry.place(x=160, y=200)
-        damage_entry.insert(0, str(player.damage))
+        damage_entry.insert(0, str(uzivatel.damage))
 
         def updatedamage():
             try:
@@ -396,37 +401,37 @@ def playpressed():
                 if new_damage <= 0 or new_damage > 10:
                     tkinter.messagebox.showerror('Out of range', 'Range: 1-10')
                 else:
-                    player.damage = new_damage
+                    uzivatel.damage = new_damage
                     tkinter.messagebox.showinfo('Success!', 'Damage Changed Successfully!')
             except ValueError:
                 tkinter.messagebox.showerror('Non number value!', 'You entered a non-number.')
 
-        tkinter.Button(settingwindow, text="Set Damage", command=updatedamage).place(x=300, y=200)
+        tkinter.Button(customlevelwindow, text="Set Damage", command=updatedamage).place(x=300, y=200)
 
         #### PLAYER WEAPON ####
         def show():
             selected_weapon = cb.get()
-            player.weapon = selected_weapon
+            uzivatel.weapon = selected_weapon
             lbl.config(text=f"Weapon set to: {selected_weapon}")
 
         WeaponSelectPlayer = ["None", "Sword", "Gun"]
-        cb = ttk.Combobox(settingwindow, values=WeaponSelectPlayer)
-        cb.set(player.weapon)
+        cb = ttk.Combobox(customlevelwindow, values=WeaponSelectPlayer)
+        cb.set(uzivatel.weapon)
         cb.place(x=151, y=250)
 
-        tkinter.Button(settingwindow, text="Set Weapon", command=show).place(x=300, y=250)
-        lbl = tkinter.Label(settingwindow, text="")
+        tkinter.Button(customlevelwindow, text="Set Weapon", command=show).place(x=300, y=250)
+        lbl = tkinter.Label(customlevelwindow, text="")
         lbl.place(x=151, y=280)
 
-        tkinter.Label(settingwindow, text="Player Weapon:").place(x=50, y=250)
+        tkinter.Label(customlevelwindow, text="Player Weapon:").place(x=50, y=250)
 
         #### ENEMY SECTION ####
-        enemylabel = tkinter.Label(settingwindow, text="Enemy", font=('Arial', 25))
+        enemylabel = tkinter.Label(customlevelwindow, text="Enemy", font=('Arial', 25))
         enemylabel.place(x=160, y=340)
 
-        healthEnemy_label = tkinter.Label(settingwindow, text="Enemy Health:")
+        healthEnemy_label = tkinter.Label(customlevelwindow, text="Enemy Health:")
         healthEnemy_label.place(x=50, y=390)
-        healthEnemy_entry = tkinter.Entry(settingwindow)
+        healthEnemy_entry = tkinter.Entry(customlevelwindow)
         healthEnemy_entry.place(x=160, y=390)
         healthEnemy_entry.insert(0, str(enemy.health))
 
@@ -441,12 +446,12 @@ def playpressed():
             except ValueError:
                 tkinter.messagebox.showerror('Non number value!', 'You entered a non-number.')
 
-        tkinter.Button(settingwindow, text="Set Health", command=updateEnem_health).place(x=300, y=389)
+        tkinter.Button(customlevelwindow, text="Set Health", command=updateEnem_health).place(x=300, y=389)
 
         #### ENEMY DAMAGE ####
-        damageEnemylabel = tkinter.Label(settingwindow, text="Enemy Damage:")
+        damageEnemylabel = tkinter.Label(customlevelwindow, text="Enemy Damage:")
         damageEnemylabel.place(x=50, y=430)
-        damageEnemy_entry = tkinter.Entry(settingwindow)
+        damageEnemy_entry = tkinter.Entry(customlevelwindow)
         damageEnemy_entry.place(x=160, y=430)
         damageEnemy_entry.insert(0, str(enemy.damage))
 
@@ -461,7 +466,7 @@ def playpressed():
             except ValueError:
                 tkinter.messagebox.showerror('Non number value!', 'You entered a non-number.')
 
-        tkinter.Button(settingwindow, text="Set Damage", command=updatedEnemamage).place(x=300, y=429)
+        tkinter.Button(customlevelwindow, text="Set Damage", command=updatedEnemamage).place(x=300, y=429)
         def showEnem():
             selectedEnem_weapon = cbEnem.get()
             enemy.weapon = selectedEnem_weapon 
@@ -471,19 +476,19 @@ def playpressed():
         WeaponSelectEnemy = ["None", "Sword", "Gun"]
 
 
-        cbEnem = ttk.Combobox(settingwindow, values=WeaponSelectEnemy)
+        cbEnem = ttk.Combobox(customlevelwindow, values=WeaponSelectEnemy)
         cbEnem.set(f"{enemy.weapon}")
         cbEnem.place(x=151, y=470)
-        confirmEnemweap = tkinter.Button(settingwindow, text="Set Weapon", command=showEnem)
+        confirmEnemweap = tkinter.Button(customlevelwindow, text="Set Weapon", command=showEnem)
         confirmEnemweap.place(x=300, y=470)
-        lblEnem = tkinter.Label(settingwindow, text="")
+        lblEnem = tkinter.Label(customlevelwindow, text="")
         lblEnem.place(x=151, y=495)
-        weaponEnemlabl = tkinter.Label(settingwindow, text= "Enemy Weapon:")
+        weaponEnemlabl = tkinter.Label(customlevelwindow, text= "Enemy Weapon:")
         weaponEnemlabl.place(x=50, y = 470)
         #### ENEMY RNG ####
-        rngEnemylabel = tkinter.Label(settingwindow, text="Enemy RNG:")
+        rngEnemylabel = tkinter.Label(customlevelwindow, text="Enemy RNG:")
         rngEnemylabel.place(x=50, y=520)
-        rngEnemy_entry = tkinter.Entry(settingwindow)
+        rngEnemy_entry = tkinter.Entry(customlevelwindow)
         rngEnemy_entry.place(x=160, y=520)
         rngEnemy_entry.insert(0, str(enemy.rng))
 
@@ -498,9 +503,9 @@ def playpressed():
             except ValueError:
                 tkinter.messagebox.showerror('Non number value!', 'You entered a non-number.')
 
-        tkinter.Button(settingwindow, text="Set RNG", command=rngEnem).place(x=300, y=519)
+        tkinter.Button(customlevelwindow, text="Set RNG", command=rngEnem).place(x=300, y=519)
 
-    customlev = tkinter.Button(playwindow, text="Custom",background="MediumOrchid1",activebackground="MediumOrchid3",height=2, width=21,command=customlevpress)
+    customlev = tkinter.Button(playwindow, text="Vlastná Hra",background="MediumOrchid1",activebackground="MediumOrchid3",height=2, width=21,command=vlastnahrapress)
     customlev.place(x=489, y=250)
 
     ##################################
@@ -509,11 +514,16 @@ def playpressed():
 
     def backmainpress():
         playwindow.destroy()
-    backmain = tkinter.Button(playwindow, text="Back to Menu", background="Gray", activebackground="Dark Gray", height=2, width=21, command=backmainpress)
+    backmain = tkinter.Button(playwindow, text="Vrátiť sa do menu", background="Gray", activebackground="Dark Gray", height=2, width=21, command=backmainpress)
     backmain.place(x=410, y=350)
 
     #### level select setup End ####
-
+def settingspressed():
+        
+    settingswindow = tkinter.Toplevel(window)
+    settingswindow.title("Nastavenia")
+    settingswindow.resizable(0,0)
+    settingswindow.geometry("650x650")
 
 #### UI buttons handling ####
 
@@ -524,8 +534,8 @@ def temp():
 logo = tkinter.PhotoImage(file="Media/logo.png")  
 logolabel = tkinter.Label(window, image=logo)
 logolabel.place(x=0, y=0)  # initial creation, will be overidden later 
-playbutton = tkinter.Button(window, text= "Play", background='grey', height= 2, width= 21, command=playpressed)
-settingsbuttonmainmenu = tkinter.Button(window, text= "Settings", background='grey', height= 2, width= 21, command = temp)
+playbutton = tkinter.Button(window, text= "Hrať", background='grey', height= 2, width= 21, command=playpressed)
+settingsbuttonmainmenu = tkinter.Button(window, text= "Nastavenia", background='grey', height= 2, width= 21, command = settingspressed)
 exitbutton = tkinter.Button(window, text='Exit', background='grey', height= 2, width= 21, command= exitpressed)
 
 
@@ -559,9 +569,9 @@ center_item(exitbutton, 950, 540)
 
 def savedata():
     data = {
-        "Playerhealth" : player.health,
-        "Playerdmg" : player.damage,
-        "Playerweap" : player.weapon,
+        "Playerhealth" : uzivatel.health,
+        "Playerdmg" : uzivatel.damage,
+        "Playerweap" : uzivatel.weapon,
         "Enemhealth" : enemy.health,
         "Enemdmg" : enemy.damage,
         "Enemweap" : enemy.weapon,
