@@ -7,6 +7,8 @@ import random
 
 saveloc = "Data/game_data.dat"
 playerturn = True
+playerdamagelabel = None
+enemydamagelabel = None
 def loadData():
     try:
         with open(saveloc, 'rb') as file:
@@ -99,6 +101,7 @@ def mainfight(enemy, player):
     global playerdefending
     global turncountplaceholder
     global turnlabel
+    global playerdamagelabel, enemydamagelabel
 
     battle_player = type(player)(*vars(player).values())
     battle_enemy = type(enemy)(*vars(enemy).values())
@@ -113,7 +116,10 @@ def mainfight(enemy, player):
     playersprlabel = tkinter.Label(battlewindow, image=playersprite)
     playersprlabel.place(x=200, y=120)
     playersprlabel.image = playersprite
-
+    playerdamagelabel = tkinter.Label(battlewindow, text="", font=('Arial', 14, 'bold'))
+    playerdamagelabel.place(x=300, y=70)
+    enemydamagelabel = tkinter.Label(battlewindow, text="", font=('Arial', 14, 'bold'))
+    enemydamagelabel.place(x=910, y=70)
     Enemsprite = tkinter.PhotoImage(file="Media/enemysprite.png")
     Enemsprlabel = tkinter.Label(battlewindow, image=Enemsprite)
     Enemsprlabel.place(x=800, y=120)
@@ -196,6 +202,7 @@ def player_heal(player):
 def player_attack(player, enemy):
     global playerdefending
     global playerturn
+    global enemydamagelabel
     playerdefending = False
     if not playerturn:
         return
@@ -204,6 +211,8 @@ def player_attack(player, enemy):
     attackpow = random.randint(1, player.damage)
     enemy.health -= attackpow
     enemyhealthlabel.config(text=f"HP: {enemy.health}")
+    enemydamagelabel.config(text=f"-{attackpow}", fg="red")
+    battlewindow.after(1000, lambda:enemydamagelabel.config(text=""))
     print(f"Player attacks for {attackpow}")
 
     if enemy.health <= 0:
@@ -222,6 +231,7 @@ def enemy_attack(player, enemy):
     global playerdefending
     global turncountplaceholder
     global turnlabel
+    global playerdamagelabel
     print(f"{playerdefending}")
     if playerdefending == False:
         enemattackpow = random.randint(1, enemy.damage)
@@ -231,6 +241,8 @@ def enemy_attack(player, enemy):
 
     player.health -= enemattackpow
     playerhealthlabel.config(text=f"HP: {player.health}")
+    playerdamagelabel.config(text=f"-{enemattackpow}", fg="red")
+    battlewindow.after(1000, lambda: playerdamagelabel.config(text=""))
     print(f"Enemy attacks for {enemattackpow}")
 
 
