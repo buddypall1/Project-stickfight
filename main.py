@@ -345,7 +345,7 @@ def playpressed():
         def confirmpress():
             settingwindow.destroy()
             playwindow.destroy()
-            mainfight(player,enemy)
+            mainfight(enemy,player)
         
         confirmbuttn = tkinter.Button(settingwindow, text="Play", background='grey', height=2,width=21, command=confirmpress)
         confirmbuttn.place(x=490, y=20)
