@@ -101,7 +101,7 @@ def bojokno(nepriatel, uzivatel):
     global UzivatelObranuje
     global kololabelinteger
     global kololabel
-    global uzivatelstatuslabel, nepriatelstatuslabel
+    global uzivatelstatuslabel, nepriatelstatuslabel, uzivatelsprite, uzivatelspritelabel, nepriatelsprite, nepriatelspritelabel
 
     battle_player = type(uzivatel)(*vars(uzivatel).values())
     battle_enemy = type(nepriatel)(*vars(nepriatel).values())
@@ -203,7 +203,7 @@ def UzivatelBonus(uzivatel):
 def UzivatelUtoc(uzivatel, nepriatel):
     global UzivatelObranuje
     global uzivatelovekolo
-    global nepriatelstatuslabel
+    global nepriatelstatuslabel, nepriatelsprite
     UzivatelObranuje = False
     if not uzivatelovekolo:
         return
@@ -213,13 +213,14 @@ def UzivatelUtoc(uzivatel, nepriatel):
     nepriatel.zivot -= utoksila
     nepriatelzivotstatus.config(text=f"HP: {nepriatel.zivot}")
     nepriatelstatuslabel.config(text=f"-{utoksila}", fg="red")
+    nepriatelsprite.config(file="Media/nepriatelspritehit.png")
     bojoveokno.after(1000, lambda:nepriatelstatuslabel.config(text=""))
     print(f"Player attacks for {utoksila}")
 
     if nepriatel.zivot <= 0:
         tkinter.messagebox.showinfo("Výhra", "Vyhral si nad nepriateľom!")
         return
-
+    bojoveokno.after(1000, lambda: nepriatelsprite.config(file="Media/nepriatelsprite.png"))
     uzivatelovekolo = False
     buttonystatus("disabled")
 
@@ -231,10 +232,10 @@ def nepriatelutok(uzivatel, nepriatel):
     global UzivatelObranuje
     global kololabelinteger
     global kololabel
-    global uzivatelstatuslabel
+    global uzivatelstatuslabel, uzivatelsprite, uzivatelspritelabel
     print(f"{UzivatelObranuje}")
     if UzivatelObranuje == False:
-        enemattackpow = random.randint(1, nepriatel.damage)
+        enemattackpow = random.randint(1, nepriatel.damage) 
     else:  
         enemattackpow = random.randint(1, nepriatel.damage // 2)
         print(f"Defending success! UzivatelObranuje={UzivatelObranuje}")
@@ -242,6 +243,7 @@ def nepriatelutok(uzivatel, nepriatel):
     uzivatel.zivot -= enemattackpow
     uzivatelzivotlabel.config(text=f"HP: {uzivatel.zivot}")
     uzivatelstatuslabel.config(text=f"-{enemattackpow}", fg="red")
+    uzivatelsprite.config(file="Media/uzivatelspritehit.png")
     bojoveokno.after(1000, lambda: uzivatelstatuslabel.config(text=""))
     print(f"Enemy attacks for {enemattackpow}")
 
@@ -251,7 +253,7 @@ def nepriatelutok(uzivatel, nepriatel):
         tkinter.messagebox.showinfo("Defeat", "You were defeated!")
         bojoveokno.destroy()
         return
-
+    bojoveokno.after(1000, lambda: uzivatelsprite.config(file="Media/uzivatelsprite.png"))
     uzivatelovekolo = True
     buttonystatus("normal")
     kololabelinteger += 1
