@@ -179,7 +179,7 @@ def UzivatelObrana(uzivatel):
 def UzivatelBonus(uzivatel):
     global uzivatelovekolo
     global uzivatelstatuslabel
-
+    global uzivatelsprite
     if not uzivatelovekolo or uzivatel.healovanieamm == 0 or uzivatel.zivot == 100:
         return
     
@@ -190,12 +190,12 @@ def UzivatelBonus(uzivatel):
     uzivatel.healovanieamm -= 1
     pomockylabel.config(text=f"Zostavajuce bonusy: {uzivatel.healovanieamm}")
     uzivatelzivotlabel.config(text=f"HP: {uzivatel.zivot}")
+    uzivatelsprite.config(file="Media/uzivatelspriteheal.png")
     uzivatelstatuslabel.config(text=f"+{healovanie}", fg="green")
-    bojoveokno.after(1000, lambda:nepriatelstatuslabel.config(text=""))
-    
+    bojoveokno.after(1000, lambda:uzivatelstatuslabel.config(text=""))
     uzivatelovekolo = False
     buttonystatus("disabled")
-
+    bojoveokno.after(1000, lambda: uzivatelsprite.config(file="Media/uzivatelsprite.png"))
     bojoveokno.after(1000, lambda: nepriatelutok(uzivatel, nepriatel))
 
     
