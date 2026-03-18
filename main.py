@@ -4,11 +4,16 @@ import tkinter.messagebox
 import pickle
 from PIL import Image, ImageTk
 import random
+import pygame
 
+pygame.mixer.init()
+pygame.mixer.music.load("Media/audio/Test Instrumental - Friday Night Funkin.mp3")
+pygame.mixer.music.play(loops=-1)
 saveloc = "Data/game_data.dat"
-uzivatelovekolo = True
-uzivatelstatuslabel = None
-nepriatelstatuslabel = None
+playerturn = True
+playerstatuslabel = None
+enemystatuslabel = None
+
 def loadData():
     try:
         with open(saveloc, 'rb') as file:
@@ -204,6 +209,16 @@ def UzivatelUtoc(uzivatel, nepriatel):
     global UzivatelObranuje
     global uzivatelovekolo
     global nepriatelstatuslabel, nepriatelsprite
+    Zvukrandom = ""
+    zvukrandomrng = random.randint(1,2)
+    if zvukrandomrng == 1:
+        print("Pain1")
+        Zvukrandom = pygame.mixer.Sound("Media/audio/pain1.mp3")
+        Zvukrandom.play()
+    elif zvukrandomrng == 2:
+        print("Pain2")
+        Zvukrandom = pygame.mixer.Sound("Media/audio/pain2.mp3")
+        Zvukrandom.play()
     UzivatelObranuje = False
     if not uzivatelovekolo:
         return
@@ -233,6 +248,16 @@ def nepriatelutok(uzivatel, nepriatel):
     global kololabelinteger
     global kololabel
     global uzivatelstatuslabel, uzivatelsprite, uzivatelspritelabel
+    Zvukrandom = ""
+    zvukrandomrng = random.randint(1,2)
+    if zvukrandomrng == 1:
+        print("Pain1")
+        Zvukrandom = pygame.mixer.Sound("Media/audio/pain1.mp3")
+        Zvukrandom.play()
+    elif zvukrandomrng == 2:
+        print("Pain2")
+        Zvukrandom = pygame.mixer.Sound("Media/audio/pain2.mp3")
+        Zvukrandom.play()
     print(f"{UzivatelObranuje}")
     if UzivatelObranuje == False:
         enemattackpow = random.randint(1, nepriatel.damage) 
