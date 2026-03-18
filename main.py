@@ -13,7 +13,6 @@ saveloc = "Data/game_data.dat"
 playerturn = True
 playerstatuslabel = None
 enemystatuslabel = None
-
 def loadData():
     try:
         with open(saveloc, 'rb') as file:
