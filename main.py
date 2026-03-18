@@ -6,9 +6,9 @@ from PIL import Image, ImageTk
 import random
 import pygame
 
+
 pygame.mixer.init()
-pygame.mixer.music.load("Media/audio/Test Instrumental - Friday Night Funkin.mp3")
-pygame.mixer.music.play(loops=-1)
+
 saveloc = "Data/game_data.dat"
 playerturn = True
 playerstatuslabel = None
@@ -27,16 +27,21 @@ def loadData():
         "Enemhealth" : 100,
         "Enemdmg" : 5,
         "Enemweap" : "None",
-        "Enemrng" : 50
+        "Enemrng" : 50,
+        "musicon" : "True",
+        "audioOn" : "True"
         }
 
 
 gamedata = loadData()
 
-# ENEMY RNG TABLE DEFAULTS: 50
-# For attack: This will be default when nothing is needed
-# When below half zivot: it will heal if RNG rolls below selected RNG value, will attack if above, which means higher RNG = harder fight. (100 would mean 100% chance, 0 would mean 0%)
-
+musicon = gamedata['musicon']
+audioOn = gamedata['audioOn']
+pygame.mixer.music.load("Media/audio/Test Instrumental - Friday Night Funkin.mp3")
+if musicon == False:
+    pass
+else:
+    pygame.mixer.music.play(loops=-1)
 
 #### window creation start ####
 window = tkinter.Tk()
@@ -208,16 +213,28 @@ def UzivatelUtoc(uzivatel, nepriatel):
     global UzivatelObranuje
     global uzivatelovekolo
     global nepriatelstatuslabel, nepriatelsprite
+    global sfxvar
     Zvukrandom = ""
-    zvukrandomrng = random.randint(1,2)
-    if zvukrandomrng == 1:
-        print("Pain1")
-        Zvukrandom = pygame.mixer.Sound("Media/audio/pain1.mp3")
-        Zvukrandom.play()
-    elif zvukrandomrng == 2:
-        print("Pain2")
-        Zvukrandom = pygame.mixer.Sound("Media/audio/pain2.mp3")
-        Zvukrandom.play()
+    zvukrandomrng = random.randint(1,4)
+    if sfxvar.get():
+        if zvukrandomrng == 1:
+            print("Pain1")
+            Zvukrandom = pygame.mixer.Sound("Media/audio/pain1.mp3")
+            Zvukrandom.play()
+        elif zvukrandomrng == 2:
+            print("Pain2")
+            Zvukrandom = pygame.mixer.Sound("Media/audio/pain2.mp3")
+            Zvukrandom.play()
+        elif zvukrandomrng == 3:
+            print("Pain3")
+            Zvukrandom = pygame.mixer.Sound("Media/audio/pain3.mp3")
+            Zvukrandom.play()
+        elif zvukrandomrng == 4:
+            print("Pain4")
+            Zvukrandom = pygame.mixer.Sound("Media/audio/pain4.mp3")
+            Zvukrandom.play()
+    else: 
+        pass
     UzivatelObranuje = False
     if not uzivatelovekolo:
         return
@@ -247,16 +264,28 @@ def nepriatelutok(uzivatel, nepriatel):
     global kololabelinteger
     global kololabel
     global uzivatelstatuslabel, uzivatelsprite, uzivatelspritelabel
+    global sfxvar
     Zvukrandom = ""
-    zvukrandomrng = random.randint(1,2)
-    if zvukrandomrng == 1:
-        print("Pain1")
-        Zvukrandom = pygame.mixer.Sound("Media/audio/pain1.mp3")
-        Zvukrandom.play()
-    elif zvukrandomrng == 2:
-        print("Pain2")
-        Zvukrandom = pygame.mixer.Sound("Media/audio/pain2.mp3")
-        Zvukrandom.play()
+    zvukrandomrng = random.randint(1,4)
+    if sfxvar.get():
+        if zvukrandomrng == 1:
+            print("Pain1")
+            Zvukrandom = pygame.mixer.Sound("Media/audio/pain1.mp3")
+            Zvukrandom.play()
+        elif zvukrandomrng == 2:
+            print("Pain2")
+            Zvukrandom = pygame.mixer.Sound("Media/audio/pain2.mp3")
+            Zvukrandom.play()
+        elif zvukrandomrng == 3:
+            print("Pain3")
+            Zvukrandom = pygame.mixer.Sound("Media/audio/pain3.mp3")
+            Zvukrandom.play()
+        elif zvukrandomrng == 4:
+            print("Pain4")
+            Zvukrandom = pygame.mixer.Sound("Media/audio/pain4.mp3")
+            Zvukrandom.play()
+    else: 
+        pass
     print(f"{UzivatelObranuje}")
     if UzivatelObranuje == False:
         enemattackpow = random.randint(1, nepriatel.damage) 
@@ -541,13 +570,50 @@ def playpressed():
     backmain.place(x=410, y=350)
 
     #### level select setup End ####
+
+audiovar = tkinter.BooleanVar()
+audiovar.set(musicon)
+
+def musicsetter():
+    global musicon
+    global audiovar
+
+    if audiovar.get():
+        pygame.mixer.music.play()
+        print("Musicon set to True")
+        musicon = True
+    else:
+        pygame.mixer.music.pause()
+        print("Musicon set to False")
+        musicon = False
+
+sfxvar = tkinter.BooleanVar()
+sfxvar.set(audioOn)
+
+def sfxsetter():
+    global audioOn
+    global sfxvar
+
+    if sfxvar.get():
+        audioOn = True
+    else:
+        audioOn = False
+
 def settingspressed():
-        
+    global musicon
+    global audiovar, sfxvar
     settingswindow = tkinter.Toplevel(window)
     settingswindow.title("Nastavenia")
     settingswindow.resizable(0,0)
     settingswindow.geometry("650x650")
-
+    audiocheck = tkinter.Checkbutton(settingswindow, text="", variable=audiovar, command=musicsetter)
+    audiocheck.place(x=100,y=50)
+    audiochecktext = tkinter.Label(settingswindow, text="Piesne:")
+    audiochecktext.place(x=60,y=50)
+    sfxcheck = tkinter.Checkbutton(settingswindow, text="", variable=sfxvar, command=sfxsetter)
+    sfxcheck.place(x=150,y=80)
+    sfxchecktext= tkinter.Label(settingswindow, text="Zvukové Efekty")
+    sfxchecktext.place(x=60, y=80)
 #### UI buttons handling ####
 
 
@@ -598,7 +664,9 @@ def savedata():
         "Enemhealth" : nepriatel.zivot,
         "Enemdmg" : nepriatel.damage,
         "Enemweap" : nepriatel.weapon,
-        "Enemrng" : nepriatel.rng
+        "Enemrng" : nepriatel.rng,
+        "musicon" : musicon,
+        "audioOn" : audioOn
     }
     with open(saveloc, "wb") as file:
         pickle.dump(data, file)
