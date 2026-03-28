@@ -13,40 +13,76 @@ saveloc = "Data/game_data.dat"
 playerturn = True
 playerstatuslabel = None
 enemystatuslabel = None
+current_score = 0
+current_level = "Custom"
+difficulty_multiplier = 1.0
+
 def loadData():
     try:
         with open(saveloc, 'rb') as file:
             data = pickle.load(file)
+
+        # Ensure all expected keys exist
+        if 'TopScores' not in data:
+            data['TopScores'] = {
+                "Easy": 0,
+                "Medium": 0,
+                "Hard": 0,
+                "VeryHard": 0,
+                "Custom": 0
+            }
+        if 'PlayerName' not in data:
+            data['PlayerName'] = None
+        if 'musicon' not in data:
+            data['musicon'] = True  # or "True" if you store as string
+        if 'audioOn' not in data:
+            data['audioOn'] = True  # or "True"
+
         return data
+
     except (FileNotFoundError, EOFError, pickle.UnpicklingError, ImportError, MemoryError):
         tkinter.messagebox.showerror("Data Error", "Couldn't load save data, reverting to defaults.")
         return {
-        "Playerhealth" : 100,
-        "Playerdmg" : 5,
-        "Playerweap" : "None",
-        "Enemhealth" : 100,
-        "Enemdmg" : 5,
-        "Enemweap" : "None",
-        "Enemrng" : 50,
-        "musicon" : "True",
-        "audioOn" : "True",
-        "PlayerName" : None
+            "Playerhealth": 100,
+            "Playerdmg": 5,
+            "Playerweap": "None",
+            "Enemhealth": 100,
+            "Enemdmg": 5,
+            "Enemweap": "None",
+            "Enemrng": 50,
+            "musicon": True,
+            "audioOn": True,
+            "PlayerName": None,
+            "TopScores": {
+                "Easy": 0,
+                "Medium": 0,
+                "Hard": 0,
+                "VeryHard": 0,
+                "Custom": 0
+            }
         }
-
 
 gamedata = loadData()
 
+musicon = gamedata['musicon']
+audioOn = gamedata['audioOn']
 player_name = gamedata.get("PlayerName", None)
+
+pygame.mixer.music.load("Media/audio/Test Instrumental - Friday Night Funkin.mp3")
+if musicon == False:
+    pass
+else:
+    pygame.mixer.music.play(loops=-1)
 
 def ask_for_name():
     global player_name
-    menowindow = tkinter.Tk()
-    menowindow.title("Ahoj!")
-    menowindow.resizable(0, 0)
-    menowindow.geometry("350x150")
+    name_window = tkinter.Tk()
+    name_window.title("Welcome!")
+    name_window.resizable(0, 0)
+    name_window.geometry("350x150")
 
-    tkinter.Label(menowindow, text="Nastav si prosím meno:", font=('Arial', 13)).pack(pady=15)
-    name_entry = tkinter.Entry(menowindow, font=('Arial', 12))
+    tkinter.Label(name_window, text="Enter your name:", font=('Arial', 13)).pack(pady=15)
+    name_entry = tkinter.Entry(name_window, font=('Arial', 12))
     name_entry.pack()
 
     def confirm():
@@ -54,23 +90,15 @@ def ask_for_name():
         name = name_entry.get().strip()
         if name:
             player_name = name
-            menowindow.destroy()
+            name_window.destroy()
         else:
-            tkinter.messagebox.showwarning("Ziadne meno!", "Nezadal si si meno..", parent=menowindow)
+            tkinter.messagebox.showwarning("No name", "Please enter a name.", parent=name_window)
 
-    tkinter.Button(menowindow, text="Confirm", command=confirm).pack(pady=10)
-    menowindow.mainloop()
+    tkinter.Button(name_window, text="Confirm", command=confirm).pack(pady=10)
+    name_window.mainloop()
 
 if not player_name:
     ask_for_name()
-
-musicon = gamedata['musicon']
-audioOn = gamedata['audioOn']
-pygame.mixer.music.load("Media/audio/Test Instrumental - Friday Night Funkin.mp3")
-if musicon == False:
-    pass
-else:
-    pygame.mixer.music.play(loops=-1)
 
 #### window creation start ####
 window = tkinter.Tk()
@@ -83,28 +111,25 @@ window.geometry("950x700")
 #### window creation end ####
 
 class Playerparams():
-
-    def __init__(self, zivot, damage, weapon,healovanieamm):
+    def __init__(self, zivot, damage, weapon, healovanieamm):
         self.zivot = zivot
         self.damage = damage
         self.weapon = weapon
-        self.healovanieamm= healovanieamm
-    
+        self.healovanieamm = healovanieamm
+
     def __str__(self):
         return f'{self.weapon} {self.damage} {self.weapon}'
 
 class Enemparams():
-
-    def __init__(self, zivot, damage, rng, weapon,healovanieamm):
-        self.zivot= zivot
+    def __init__(self, zivot, damage, rng, weapon, healovanieamm):
+        self.zivot = zivot
         self.damage = damage
         self.rng = rng
         self.weapon = weapon
-        self.healovanieamm= healovanieamm
+        self.healovanieamm = healovanieamm
 
 class LevelEnemparams():
-
-    def __init__(self,zivot,damage,rng,weapon,healovanieamm,defense):
+    def __init__(self, zivot, damage, rng, weapon, healovanieamm, defense):
         self.zivot = zivot
         self.damage = damage
         self.rng = rng
@@ -113,24 +138,44 @@ class LevelEnemparams():
         self.defense = defense
 
 class LevelPlayerparams():
-
-    def __init__(self, zivot, damage, weapon,healovanieamm,defense):
+    def __init__(self, zivot, damage, weapon, healovanieamm, defense):
         self.zivot = zivot
         self.damage = damage
         self.weapon = weapon
         self.healovanieamm = healovanieamm
         self.defense = defense
 
-#### uzivatel a nepriatel obj creation #### 
+#### uzivatel a nepriatel obj creation ####
+uzivatel = Playerparams(gamedata['Playerhealth'], gamedata['Playerdmg'], gamedata['Playerweap'], 1)
+nepriatel = Enemparams(gamedata['Enemhealth'], gamedata['Enemdmg'], gamedata['Enemrng'], gamedata['Enemweap'], 1)
 
-uzivatel = Playerparams(gamedata['Playerhealth'], gamedata['Playerdmg'], gamedata['Playerweap'],1) # CUSTOM GAME PLAYER!!! last line is healovanieamm placeholder
-nepriatel = Enemparams(gamedata['Enemhealth'], gamedata['Enemdmg'], gamedata['Enemrng'], gamedata['Enemweap'], 1) # CUSTOM GAME ENEMY!!! last line is healovanieamm placeholder
+##################################
+###       SCORE SYSTEM         ###
+##################################
+
+def add_score(points):
+    global current_score, scorelabel
+    current_score += points
+    scorelabel.config(text=f"Skóre: {current_score}")
+
+def finish_score(remaining_hp, rounds_taken):
+    global current_score, current_level, difficulty_multiplier
+    hp_bonus = remaining_hp * 2
+    round_bonus = max(0, 200 - (rounds_taken * 10))
+    final_score = int((current_score + hp_bonus + round_bonus) * difficulty_multiplier)
+    if final_score > gamedata['TopScores'][current_level]:
+        gamedata['TopScores'][current_level] = final_score
+        savedata()
+        tkinter.messagebox.showinfo("Nové Vysoké Skóre!", f"Nové vysoké skóre pre {current_level}: {final_score}!")
+    else:
+        tkinter.messagebox.showinfo("Výhra", f"Vyhral si! Skóre: {final_score}\nNajvyššie skóre: {gamedata['TopScores'][current_level]}")
+
 
 ##################################
 ###       BATTLE LOGIC         ###
 ##################################
 
-def bojokno(nepriatel, uzivatel):
+def bojokno(nepriatel, uzivatel, level_name="Custom", diff_multiplier=1.0):
     global uzivatelovekolo
     global fightbutton, defendbutton, itembutton, skipturnbutton
     global uzivatelzivotlabel, nepriatelzivotstatus
@@ -140,6 +185,11 @@ def bojokno(nepriatel, uzivatel):
     global kololabelinteger
     global kololabel
     global uzivatelstatuslabel, nepriatelstatuslabel, uzivatelsprite, uzivatelspritelabel, nepriatelsprite, nepriatelspritelabel
+    global current_score, current_level, difficulty_multiplier, scorelabel
+
+    current_score = 0
+    current_level = level_name
+    difficulty_multiplier = diff_multiplier
 
     battle_player = type(uzivatel)(*vars(uzivatel).values())
     battle_enemy = type(nepriatel)(*vars(nepriatel).values())
@@ -151,31 +201,35 @@ def bojokno(nepriatel, uzivatel):
     bojoveokno.update_idletasks()
     bojoveokno.geometry(f"1080x600+{window.winfo_x() + (window.winfo_width() - 1080) // 2}+{window.winfo_y() + (window.winfo_height() - 600) // 2}")
 
-
     kololabelinteger = 1
     kololabel = tkinter.Label(bojoveokno, text=f"KOLO: {kololabelinteger}", font=('Arial', 20, 'bold'))
     kololabel.place(x=540, y=20, anchor='center')
-
-
+    
     uzivatelzivotlabel = tkinter.Label(bojoveokno, text=f"HP: {uzivatel.zivot}", font=('Arial', 10, 'bold'))
     uzivatelzivotlabel.place(x=250, y=70, anchor='center')
 
+    uzivatelsprite = tkinter.PhotoImage(file="Media/uzivatelsprite.png")
+    namelabel = tkinter.Label(bojoveokno, text=player_name, font=('Arial', 10, 'bold'))
+    namelabel.place(x=200 + (uzivatelsprite.width() // 2), y=90, anchor='center')
+
 
     uzivatelstatuslabel = tkinter.Label(bojoveokno, text="", font=('Arial', 14, 'bold'))
-    uzivatelstatuslabel.place(x=225, y=95, anchor='center')
+    uzivatelstatuslabel.place(x=300, y=95, anchor='center')
 
-    uzivatelsprite = tkinter.PhotoImage(file="Media/uzivatelsprite.png")
     uzivatelspritelabel = tkinter.Label(bojoveokno, image=uzivatelsprite)
     uzivatelspritelabel.place(x=200, y=110)
     uzivatelspritelabel.image = uzivatelsprite
-    namelabel = tkinter.Label(bojoveokno, text=player_name, font=('Arial', 10, 'bold'))
-    namelabel.place(x=200 + (uzivatelsprite.width() // 2), y=90, anchor='center')
 
     nepriatelzivotstatus = tkinter.Label(bojoveokno, text=f"HP: {nepriatel.zivot}", font=('Arial', 10, 'bold'))
     nepriatelzivotstatus.place(x=860, y=70, anchor='center')
 
+
     nepriatelmeno = tkinter.Label(bojoveokno, text="Nepriateľ", font=('Arial', 10, 'bold'))
     nepriatelmeno.place(x=860, y=90, anchor='center')
+
+
+    nepriatelstatuslabel = tkinter.Label(bojoveokno, text="", font=('Arial', 14, 'bold'))
+    nepriatelstatuslabel.place(x=800, y=95, anchor='center')
 
     nepriatelsprite = tkinter.PhotoImage(file="Media/nepriatelsprite.png")
     nepriatelspritelabel = tkinter.Label(bojoveokno, image=nepriatelsprite)
@@ -184,7 +238,6 @@ def bojokno(nepriatel, uzivatel):
 
     UIvs = tkinter.Label(bojoveokno, text="VS", font=('Arial', 50, 'bold'))
     UIvs.place(x=540, y=220, anchor='center')
-
 
     tkinter.Frame(bojoveokno, height=2, bg='black').place(x=0, y=420, width=1080)
 
@@ -203,9 +256,14 @@ def bojokno(nepriatel, uzivatel):
     pomockylabel = tkinter.Label(bojoveokno, text=f"Zostavajuce bonusy: {battle_player.healovanieamm}", font=('Arial', 10))
     pomockylabel.place(x=540, y=490, anchor='center')
 
+    scorelabel = tkinter.Label(bojoveokno, text="Skóre: 0", font=('Arial', 10, 'bold'))
+    scorelabel.place(x=540, y=510, anchor='center')
+
     UzivatelObranuje = False
     uzivatelovekolo = True
     fightbutton.config(state="normal")
+
+
 def UzivatelPreskoc(uzivatel):
     global uzivatelovekolo
     uzivatelovekolo = False
@@ -217,7 +275,7 @@ def UzivatelObrana(uzivatel):
     global UzivatelObranuje
     if not uzivatelovekolo:
         return
-    
+    add_score(5)
     UzivatelObranuje = True
     uzivatelovekolo = False
     buttonystatus("disabled")
@@ -230,7 +288,7 @@ def UzivatelBonus(uzivatel):
     global uzivatelsprite
     if not uzivatelovekolo or uzivatel.healovanieamm == 0 or uzivatel.zivot == 100:
         return
-    
+
     healsila = random.randint(1, 15)
     maximalnehealovanie = 100 - uzivatel.zivot
     healovanie = min(healsila, maximalnehealovanie)
@@ -240,13 +298,12 @@ def UzivatelBonus(uzivatel):
     uzivatelzivotlabel.config(text=f"HP: {uzivatel.zivot}")
     uzivatelsprite.config(file="Media/uzivatelspriteheal.png")
     uzivatelstatuslabel.config(text=f"+{healovanie}", fg="green")
-    bojoveokno.after(1000, lambda:uzivatelstatuslabel.config(text=""))
+    bojoveokno.after(1000, lambda: uzivatelstatuslabel.config(text=""))
     uzivatelovekolo = False
     buttonystatus("disabled")
     bojoveokno.after(1000, lambda: uzivatelsprite.config(file="Media/uzivatelsprite.png"))
     bojoveokno.after(1000, lambda: nepriatelutok(uzivatel, nepriatel))
 
-    
 
 def UzivatelUtoc(uzivatel, nepriatel):
     global UzivatelObranuje
@@ -254,46 +311,41 @@ def UzivatelUtoc(uzivatel, nepriatel):
     global nepriatelstatuslabel, nepriatelsprite
     global sfxvar
     Zvukrandom = ""
-    zvukrandomrng = random.randint(1,4)
+    zvukrandomrng = random.randint(1, 4)
     if sfxvar.get():
         if zvukrandomrng == 1:
-            print("Pain1")
             Zvukrandom = pygame.mixer.Sound("Media/audio/pain1.mp3")
             Zvukrandom.play()
         elif zvukrandomrng == 2:
-            print("Pain2")
             Zvukrandom = pygame.mixer.Sound("Media/audio/pain2.mp3")
             Zvukrandom.play()
         elif zvukrandomrng == 3:
-            print("Pain3")
             Zvukrandom = pygame.mixer.Sound("Media/audio/pain3.mp3")
             Zvukrandom.play()
         elif zvukrandomrng == 4:
-            print("Pain4")
             Zvukrandom = pygame.mixer.Sound("Media/audio/pain4.mp3")
             Zvukrandom.play()
-    else: 
-        pass
+
     UzivatelObranuje = False
     if not uzivatelovekolo:
         return
 
-
     utoksila = random.randint(1, uzivatel.damage)
     nepriatel.zivot -= utoksila
+    add_score(utoksila)
     nepriatelzivotstatus.config(text=f"HP: {nepriatel.zivot}")
     nepriatelstatuslabel.config(text=f"-{utoksila}", fg="red")
     nepriatelsprite.config(file="Media/nepriatelspritehit.png")
-    bojoveokno.after(1000, lambda:nepriatelstatuslabel.config(text=""))
-    print(f"Player attacks for {utoksila}")
+    bojoveokno.after(1000, lambda: nepriatelstatuslabel.config(text=""))
 
     if nepriatel.zivot <= 0:
-        tkinter.messagebox.showinfo("Výhra", "Vyhral si nad nepriateľom!")
+        finish_score(uzivatel.zivot, kololabelinteger)
+        bojoveokno.destroy()
         return
+
     bojoveokno.after(1000, lambda: nepriatelsprite.config(file="Media/nepriatelsprite.png"))
     uzivatelovekolo = False
     buttonystatus("disabled")
-
     bojoveokno.after(1000, lambda: nepriatelutok(uzivatel, nepriatel))
 
 
@@ -305,53 +357,43 @@ def nepriatelutok(uzivatel, nepriatel):
     global uzivatelstatuslabel, uzivatelsprite, uzivatelspritelabel
     global sfxvar
     Zvukrandom = ""
-    zvukrandomrng = random.randint(1,4)
+    zvukrandomrng = random.randint(1, 4)
     if sfxvar.get():
         if zvukrandomrng == 1:
-            print("Pain1")
             Zvukrandom = pygame.mixer.Sound("Media/audio/pain1.mp3")
             Zvukrandom.play()
         elif zvukrandomrng == 2:
-            print("Pain2")
             Zvukrandom = pygame.mixer.Sound("Media/audio/pain2.mp3")
             Zvukrandom.play()
         elif zvukrandomrng == 3:
-            print("Pain3")
             Zvukrandom = pygame.mixer.Sound("Media/audio/pain3.mp3")
             Zvukrandom.play()
         elif zvukrandomrng == 4:
-            print("Pain4")
             Zvukrandom = pygame.mixer.Sound("Media/audio/pain4.mp3")
             Zvukrandom.play()
-    else: 
-        pass
-    print(f"{UzivatelObranuje}")
+
     if UzivatelObranuje == False:
-        enemattackpow = random.randint(1, nepriatel.damage) 
-    else:  
+        enemattackpow = random.randint(1, nepriatel.damage)
+    else:
         enemattackpow = random.randint(1, nepriatel.damage // 2)
-        print(f"Defending success! UzivatelObranuje={UzivatelObranuje}")
 
     uzivatel.zivot -= enemattackpow
     uzivatelzivotlabel.config(text=f"HP: {uzivatel.zivot}")
     uzivatelstatuslabel.config(text=f"-{enemattackpow}", fg="red")
     uzivatelsprite.config(file="Media/uzivatelspritehit.png")
     bojoveokno.after(1000, lambda: uzivatelstatuslabel.config(text=""))
-    print(f"Enemy attacks for {enemattackpow}")
-
 
     if uzivatel.zivot <= 0:
-        print("Player defeated!")
-        tkinter.messagebox.showinfo("Defeat", "You were defeated!")
+        tkinter.messagebox.showinfo("Prehra", "Bol si porazený!")
         bojoveokno.destroy()
         return
+
     bojoveokno.after(1000, lambda: uzivatelsprite.config(file="Media/uzivatelsprite.png"))
+    UzivatelObranuje = False
     uzivatelovekolo = True
     buttonystatus("normal")
     kololabelinteger += 1
     kololabel.config(text=f"KOLO:{kololabelinteger}")
-    
-
 
 
 def buttonystatus(state):
@@ -360,17 +402,40 @@ def buttonystatus(state):
     itembutton.config(state=state)
     skipturnbutton.config(state=state)
 
-#### UI buttons handling ####
+
+##################################
+###      UI BUTTON HANDLERS    ###
+##################################
+
 def exitpressed():
     window.destroy()
     savedata()
 
-    
+
+def scorespressed():
+    scoreswindow = tkinter.Toplevel(window)
+    scoreswindow.title("Vysoké Skóre")
+    scoreswindow.resizable(0, 0)
+    scoreswindow.geometry("400x350")
+    scoreswindow.update_idletasks()
+    scoreswindow.geometry(f"400x350+{window.winfo_x() + (window.winfo_width() - 400) // 2}+{window.winfo_y() + (window.winfo_height() - 350) // 2}")
+
+    tkinter.Label(scoreswindow, text="Vysoké Skóre", font=('Arial', 20, 'bold')).place(x=200, y=20, anchor='center')
+    tkinter.Label(scoreswindow, text="─" * 40, fg='gray').place(x=200, y=50, anchor='center')
+
+    levels = [("Ľahké", "Easy"), ("Stredné", "Medium"), ("Ťažké", "Hard"), ("Veľmi Ťažké", "VeryHard"), ("Vlastná", "Custom")]
+    for i, (label, key) in enumerate(levels):
+        tkinter.Label(scoreswindow, text=label, font=('Arial', 11, 'bold')).place(x=120, y=80 + i * 45)
+        tkinter.Label(scoreswindow, text=str(gamedata['TopScores'][key]), font=('Arial', 11)).place(x=280, y=80 + i * 45)
+
+    tkinter.Button(scoreswindow, text="Zavrieť", background='grey', height=2, width=10, command=scoreswindow.destroy).place(x=200, y=300, anchor='center')
+
+
 def playpressed():
     global uzivatel, nepriatel
 
     playwindow = tkinter.Toplevel(window)
-    playwindow.resizable(0,0)
+    playwindow.resizable(0, 0)
     playwindow.title('TmEsg')
     playwindow.geometry('950x700')
 
@@ -379,43 +444,27 @@ def playpressed():
 
     def easylevelpress():
         easyenem = LevelEnemparams(zivot=50, damage=5, rng=25, weapon="None", healovanieamm=2, defense=1)
-        easyplayer = LevelPlayerparams(zivot=100, damage=15, weapon="Gun", healovanieamm=10, defense= 1)
+        easyplayer = LevelPlayerparams(zivot=100, damage=15, weapon="Gun", healovanieamm=10, defense=1)
         playwindow.destroy()
-        bojokno(easyenem, easyplayer)
-    
+        bojokno(easyenem, easyplayer, level_name="Easy", diff_multiplier=1.0)
+
     def mediumlevelpress():
         mediumenem = LevelEnemparams(zivot=100, damage=10, rng=35, weapon="Sword", healovanieamm=5, defense=1)
         mediumplayer = LevelPlayerparams(zivot=100, damage=10, weapon="Sword", healovanieamm=5, defense=1)
         playwindow.destroy()
-        bojokno(mediumenem,mediumplayer)
-    
+        bojokno(mediumenem, mediumplayer, level_name="Medium", diff_multiplier=1.5)
+
     def hardlevelpress():
-        hardenem= LevelEnemparams(zivot=150, damage=25, rng=45, weapon="Gun",healovanieamm=8, defense=1)
-        hardplayer = LevelPlayerparams(zivot=85, damage=15,weapon="None",healovanieamm=3, defense=1)
+        hardenem = LevelEnemparams(zivot=150, damage=25, rng=45, weapon="Gun", healovanieamm=8, defense=1)
+        hardplayer = LevelPlayerparams(zivot=85, damage=15, weapon="None", healovanieamm=3, defense=1)
         playwindow.destroy()
-        bojokno(hardenem,hardplayer)
+        bojokno(hardenem, hardplayer, level_name="Hard", diff_multiplier=2.0)
 
     def veryhardlevelpress():
-        vhardenem= LevelEnemparams(zivot=200, damage=50, rng=70, weapon="Gun",healovanieamm=10, defense=1)
-        vhardplayer = LevelPlayerparams(zivot=50,damage=25,weapon="None",healovanieamm=1, defense=1)
+        vhardenem = LevelEnemparams(zivot=200, damage=50, rng=70, weapon="Gun", healovanieamm=10, defense=1)
+        vhardplayer = LevelPlayerparams(zivot=50, damage=25, weapon="None", healovanieamm=1, defense=1)
         playwindow.destroy()
-        bojokno(vhardenem,vhardplayer)
-
-
-    easylev = tkinter.Button(playwindow, text="Ľahké", background="Green", activebackground="Dark Green", height=2, width=21, command=easylevelpress)
-    easylev.place(x=150, y=200)
-    mediumlev = tkinter.Button(playwindow, text="Stredné", background="Yellow", activebackground="Goldenrod", height=2, width=21, command=mediumlevelpress)
-    mediumlev.place(x=320, y=200)
-    hardlev = tkinter.Button(playwindow, text="Ťažké", background="Orange", activebackground="Orange3", height=2, width=21, command=hardlevelpress)
-    hardlev.place(x=490, y=200)
-    vhardlev = tkinter.Button(playwindow, text="Veľmi Ťažké", background="Red", activebackground="Red3", height=2, width=21, command=veryhardlevelpress)
-    vhardlev.place(x=660, y=200)
-
-
-
-    ##################################
-    ###    CUSTOM GAME SETTINGS    ###
-    ##################################
+        bojokno(vhardenem, vhardplayer, level_name="VeryHard", diff_multiplier=3.0)
 
     def vlastnahrapress():
         global uzivatel, nepriatel
@@ -430,12 +479,11 @@ def playpressed():
         tkinter.Button(customlevelwindow, text="Späť", background='grey', height=2, width=10,
             command=lambda: customlevelwindow.destroy()).place(x=20, y=10)
         tkinter.Button(customlevelwindow, text="Hrať", background='grey', height=2, width=10,
-            command=lambda: [customlevelwindow.destroy(), playwindow.destroy(), bojokno(nepriatel, uzivatel)]).place(x=370, y=10)
+            command=lambda: [customlevelwindow.destroy(), playwindow.destroy(), bojokno(nepriatel, uzivatel, level_name="Custom", diff_multiplier=1.0)]).place(x=370, y=10)
 
         tkinter.Label(customlevelwindow, text="Vlastná Hra", font=('Arial', 20, 'bold')).place(x=250, y=55, anchor='center')
         tkinter.Label(customlevelwindow, text="─" * 44, fg='gray').place(x=250, y=80, anchor='center')
 
-        # Player section
         tkinter.Label(customlevelwindow, text="Hráč", font=('Arial', 12, 'bold')).place(x=250, y=100, anchor='center')
 
         tkinter.Label(customlevelwindow, text="Zdravie:").place(x=80, y=125)
@@ -471,8 +519,6 @@ def playpressed():
         tkinter.Button(customlevelwindow, text="Nastaviť", command=updatedamage).place(x=280, y=153)
 
         tkinter.Label(customlevelwindow, text="─" * 44, fg='gray').place(x=250, y=185, anchor='center')
-
-        # Enemy section
         tkinter.Label(customlevelwindow, text="Nepriateľ", font=('Arial', 12, 'bold')).place(x=250, y=200, anchor='center')
 
         tkinter.Label(customlevelwindow, text="Zdravie:").place(x=80, y=225)
@@ -523,22 +569,23 @@ def playpressed():
                 tkinter.messagebox.showerror('Chyba', 'Zadajte číslo.')
         tkinter.Button(customlevelwindow, text="Nastaviť", command=rngEnem).place(x=280, y=283)
 
+    easylev = tkinter.Button(playwindow, text="Ľahké", background="Green", activebackground="Dark Green", height=2, width=21, command=easylevelpress)
+    easylev.place(x=150, y=200)
+    mediumlev = tkinter.Button(playwindow, text="Stredné", background="Yellow", activebackground="Goldenrod", height=2, width=21, command=mediumlevelpress)
+    mediumlev.place(x=320, y=200)
+    hardlev = tkinter.Button(playwindow, text="Ťažké", background="Orange", activebackground="Orange3", height=2, width=21, command=hardlevelpress)
+    hardlev.place(x=490, y=200)
+    vhardlev = tkinter.Button(playwindow, text="Veľmi Ťažké", background="Red", activebackground="Red3", height=2, width=21, command=veryhardlevelpress)
+    vhardlev.place(x=660, y=200)
+
     customlev = tkinter.Button(playwindow, text="Vlastná Hra", background="MediumOrchid1", activebackground="MediumOrchid3", height=2, width=21, command=vlastnahrapress)
     customlev.place(x=400, y=250)
-
-    customlev = tkinter.Button(playwindow, text="Vlastná Hra",background="MediumOrchid1",activebackground="MediumOrchid3",height=2, width=21,command=vlastnahrapress)
-    customlev.place(x=400, y=250)
-
-    ##################################
-    #### CUSTOM GAME SETTINGS END #### 
-    ##################################   
 
     def backmainpress():
         playwindow.destroy()
     backmain = tkinter.Button(playwindow, text="Vrátiť sa do menu", background="Gray", activebackground="Dark Gray", height=2, width=21, command=backmainpress)
     backmain.place(x=400, y=350)
 
-    #### level select setup End ####
 
 audiovar = tkinter.BooleanVar()
 audiovar.set(musicon)
@@ -546,14 +593,11 @@ audiovar.set(musicon)
 def musicsetter():
     global musicon
     global audiovar
-
     if audiovar.get():
         pygame.mixer.music.play()
-        print("Musicon set to True")
         musicon = True
     else:
         pygame.mixer.music.pause()
-        print("Musicon set to False")
         musicon = False
 
 sfxvar = tkinter.BooleanVar()
@@ -562,7 +606,6 @@ sfxvar.set(audioOn)
 def sfxsetter():
     global audioOn
     global sfxvar
-
     if sfxvar.get():
         audioOn = True
     else:
@@ -573,14 +616,13 @@ def settingspressed():
     global audiovar, sfxvar
     settingswindow = tkinter.Toplevel(window)
     settingswindow.title("Nastavenia")
-    settingswindow.resizable(0,0)
+    settingswindow.resizable(0, 0)
     settingswindow.geometry("400x300")
+    settingswindow.update_idletasks()
+    settingswindow.geometry(f"400x300+{window.winfo_x() + (window.winfo_width() - 400) // 2}+{window.winfo_y() + (window.winfo_height() - 300) // 2}")
 
     tkinter.Label(settingswindow, text="Nastavenia", font=('Arial', 20, 'bold')).place(x=200, y=20, anchor='center')
-
-
     tkinter.Label(settingswindow, text="─" * 40, fg='gray').place(x=200, y=45, anchor='center')
-
 
     tkinter.Label(settingswindow, text="Zvuk", font=('Arial', 12, 'bold')).place(x=200, y=70, anchor='center')
 
@@ -592,10 +634,7 @@ def settingspressed():
     sfxcheck = tkinter.Checkbutton(settingswindow, variable=sfxvar, command=sfxsetter)
     sfxcheck.place(x=200, y=130)
 
-
     tkinter.Label(settingswindow, text="─" * 40, fg='gray').place(x=200, y=165, anchor='center')
-
-
     tkinter.Label(settingswindow, text="Hráč", font=('Arial', 12, 'bold')).place(x=200, y=180, anchor='center')
 
     tkinter.Label(settingswindow, text="Meno hráča:").place(x=100, y=210)
@@ -612,69 +651,60 @@ def settingspressed():
         else:
             tkinter.messagebox.showerror("Chyba", "Meno nemôže byť prázdne.", parent=settingswindow)
 
-    tkinter.Button(settingswindow, text="Nastaviť meno", background='grey', command=confirmname).place(x=200, y=250, anchor='center')
-#### UI buttons handling ####
+    tkinter.Button(settingswindow, text="Nastaviť meno", background='grey', command=confirmname).place(x=200, y=240, anchor='center')
 
 
-#### main menu UI ####
-def temp():
-    pass
-logo = tkinter.PhotoImage(file="Media/logo.png")  
+##################################
+###       MAIN MENU UI         ###
+##################################
+
+logo = tkinter.PhotoImage(file="Media/logo.png")
 logolabel = tkinter.Label(window, image=logo)
-logolabel.place(x=0, y=0)  # initial creation, will be overidden later 
-playbutton = tkinter.Button(window, text= "Hrať", background='grey', height= 2, width= 21, command=playpressed)
-settingsbuttonmainmenu = tkinter.Button(window, text= "Nastavenia", background='grey', height= 2, width= 21, command = settingspressed)
-exitbutton = tkinter.Button(window, text='Exit', background='grey', height= 2, width= 21, command= exitpressed)
+logolabel.place(x=0, y=0)
 
-
-
+playbutton = tkinter.Button(window, text="Hrať", background='#4a9e4a', activebackground='#3a7e3a', fg='white', font=('Arial', 12, 'bold'), height=2, width=21, command=playpressed)
+settingsbuttonmainmenu = tkinter.Button(window, text="Nastavenia", background='#4a7abf', activebackground='#3a5a9f', fg='white', font=('Arial', 12, 'bold'), height=2, width=21, command=settingspressed)
+scoresbutton = tkinter.Button(window, text="Vysoké Skóre", background='#bf9a2a', activebackground='#9f7a1a', fg='white', font=('Arial', 12, 'bold'), height=2, width=21, command=scorespressed)
+exitbutton = tkinter.Button(window, text="Exit", background='#bf4a4a', activebackground='#9f3a3a', fg='white', font=('Arial', 12, 'bold'), height=2, width=21, command=exitpressed)
 
 
 def center_logo(item, window_width, y_position):
-    item.update_idletasks() # AI
+    item.update_idletasks()
     item_width = item.winfo_width()
     x_position = (window_width - item_width) // 2
     item.place(x=x_position, y=y_position)
-    
 
 
 def center_item(item, window_width, y_position):
-    item.update_idletasks()  # AI 
+    item.update_idletasks()
     item_width = item.winfo_width()
     x_position = (window_width - item_width) // 2
-    item.place(x=x_position, y=y_position, anchor= 'center')
+    item.place(x=x_position, y=y_position, anchor='center')
 
 
-
-#### handling of centering ####
-
-center_logo(logolabel, 950, 70) 
-center_item(playbutton, 950, 340)
+center_logo(logolabel, 950, 70)
+center_item(playbutton, 950, 370)
 center_item(settingsbuttonmainmenu, 950, 440)
-center_item(exitbutton, 950, 540)
+center_item(scoresbutton, 950, 510)
+center_item(exitbutton, 950, 580)
 
-#### handling of centering ####
 
 def savedata():
     data = {
-        "Playerhealth" : uzivatel.zivot,
-        "Playerdmg" : uzivatel.damage,
-        "Playerweap" : uzivatel.weapon,
-        "Enemhealth" : nepriatel.zivot,
-        "Enemdmg" : nepriatel.damage,
-        "Enemweap" : nepriatel.weapon,
-        "Enemrng" : nepriatel.rng,
-        "musicon" : musicon,
-        "audioOn" : audioOn,
-        "PlayerName" : player_name
+        "Playerhealth": uzivatel.zivot,
+        "Playerdmg": uzivatel.damage,
+        "Playerweap": uzivatel.weapon,
+        "Enemhealth": nepriatel.zivot,
+        "Enemdmg": nepriatel.damage,
+        "Enemweap": nepriatel.weapon,
+        "Enemrng": nepriatel.rng,
+        "musicon": musicon,
+        "audioOn": audioOn,
+        "PlayerName": player_name,
+        "TopScores": gamedata['TopScores']
     }
     with open(saveloc, "wb") as file:
         pickle.dump(data, file)
-
-
-
-
-
 
 
 window.mainloop()
