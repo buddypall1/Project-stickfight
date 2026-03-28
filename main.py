@@ -92,7 +92,7 @@ class LevelPlayerparams():
         self.healovanieamm = healovanieamm
         self.defense = defense
 
-#### uzivatel and nepriatel obj creation #### 
+#### uzivatel a nepriatel obj creation #### 
 
 uzivatel = Playerparams(gamedata['Playerhealth'], gamedata['Playerdmg'], gamedata['Playerweap'],1) # CUSTOM GAME PLAYER!!! last line is healovanieamm placeholder
 nepriatel = Enemparams(gamedata['Enemhealth'], gamedata['Enemdmg'], gamedata['Enemrng'], gamedata['Enemweap'], 1) # CUSTOM GAME ENEMY!!! last line is healovanieamm placeholder
@@ -371,8 +371,6 @@ def playpressed():
     hardlev.place(x=490, y=200)
     vhardlev = tkinter.Button(playwindow, text="Veľmi Ťažké", background="Red", activebackground="Red3", height=2, width=21, command=veryhardlevelpress)
     vhardlev.place(x=660, y=200)
-    inflev = tkinter.Button(playwindow, text="Nekonečné", background="Light Blue", activebackground="RoyalBlue1", height=2, width=21)
-    inflev.place(x=321, y=250)
 
 
 
@@ -558,7 +556,7 @@ def playpressed():
         tkinter.Button(customlevelwindow, text="Set RNG", command=rngEnem).place(x=300, y=519)
 
     customlev = tkinter.Button(playwindow, text="Vlastná Hra",background="MediumOrchid1",activebackground="MediumOrchid3",height=2, width=21,command=vlastnahrapress)
-    customlev.place(x=489, y=250)
+    customlev.place(x=400, y=250)
 
     ##################################
     #### CUSTOM GAME SETTINGS END #### 
@@ -567,7 +565,7 @@ def playpressed():
     def backmainpress():
         playwindow.destroy()
     backmain = tkinter.Button(playwindow, text="Vrátiť sa do menu", background="Gray", activebackground="Dark Gray", height=2, width=21, command=backmainpress)
-    backmain.place(x=410, y=350)
+    backmain.place(x=400, y=350)
 
     #### level select setup End ####
 
