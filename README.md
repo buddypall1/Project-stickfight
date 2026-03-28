@@ -1,1 +1,3 @@
-Test branch for the project so i dont mess up the main line and have somewhere to loop back to if i mess up horribly
+THIS BRANCH IS IN SLOVAKIAN. 
+
+For the full english version go to the fullenglish branch (CURRENTLY NOT UPDATED)
