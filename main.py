@@ -206,11 +206,12 @@ def bojokno(nepriatel, uzivatel, level_name="Custom", diff_multiplier=1.0):
     kololabel.place(x=540, y=20, anchor='center')
 
     uzivatelzivotlabel = tkinter.Label(bojoveokno, text=f"HP: {uzivatel.zivot}", font=('Arial', 10, 'bold'))
-    uzivatelzivotlabel.place(x=225, y=55, anchor='center')
+    uzivatelzivotlabel.place(x=245, y=70, anchor='center')
 
     uzivatelsprite = tkinter.PhotoImage(file="Media/uzivatelsprite.png")
     namelabel = tkinter.Label(bojoveokno, text=player_name, font=('Arial', 10, 'bold'))
-    namelabel.place(x=200 + (uzivatelsprite.width() // 2), y=75, anchor='center')
+    namelabel.place(x=200 + (uzivatelsprite.width() // 2), y=90, anchor='center')
+
 
     uzivatelstatuslabel = tkinter.Label(bojoveokno, text="", font=('Arial', 14, 'bold'))
     uzivatelstatuslabel.place(x=225, y=95, anchor='center')
@@ -220,12 +221,12 @@ def bojokno(nepriatel, uzivatel, level_name="Custom", diff_multiplier=1.0):
     uzivatelspritelabel.image = uzivatelsprite
 
     nepriatelzivotstatus = tkinter.Label(bojoveokno, text=f"HP: {nepriatel.zivot}", font=('Arial', 10, 'bold'))
-    nepriatelzivotstatus.place(x=855, y=55, anchor='center')
+    nepriatelzivotstatus.place(x=860, y=70, anchor='center')
 
-    tkinter.Label(bojoveokno, text="Nepriateľ", font=('Arial', 10, 'bold')).place(x=855, y=75, anchor='center')
 
-    nepriatelstatuslabel = tkinter.Label(bojoveokno, text="", font=('Arial', 14, 'bold'))
-    nepriatelstatuslabel.place(x=855, y=95, anchor='center')
+    nepriatelmeno = tkinter.Label(bojoveokno, text="Nepriateľ", font=('Arial', 10, 'bold'))
+    nepriatelmeno.place(x=860, y=90, anchor='center')
+
 
     nepriatelsprite = tkinter.PhotoImage(file="Media/nepriatelsprite.png")
     nepriatelspritelabel = tkinter.Label(bojoveokno, image=nepriatelsprite)
