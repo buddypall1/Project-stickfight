@@ -79,7 +79,7 @@ def ask_for_name():
     name_window.resizable(0, 0)
     name_window.geometry("350x150")
 
-    tkinter.Label(name_window, text="Enter your name:", font=('Arial', 13)).pack(pady=15)
+    tkinter.Label(name_window, text="Zadaj svoje meno:", font=('Arial', 13)).pack(pady=15)
     name_entry = tkinter.Entry(name_window, font=('Arial', 12))
     name_entry.pack()
 
@@ -92,7 +92,7 @@ def ask_for_name():
         else:
             tkinter.messagebox.showwarning("No name", "Please enter a name.", parent=name_window)
 
-    tkinter.Button(name_window, text="Confirm", command=confirm).pack(pady=10)
+    tkinter.Button(name_window, text="OK", command=confirm).pack(pady=10)
     name_window.mainloop()
 
 if not player_name:
@@ -617,7 +617,7 @@ def musicsetter():
     global musicon
     global audiovar
     if audiovar.get():
-        pygame.mixer.music.play()
+        pygame.mixer.music.play(loops=-1)
         musicon = True
     else:
         pygame.mixer.music.pause()
