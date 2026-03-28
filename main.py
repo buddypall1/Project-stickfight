@@ -75,13 +75,36 @@ else:
 def ask_for_name():
     global player_name
     name_window = tkinter.Tk()
-    name_window.title("Welcome!")
+    name_window.title("Vitaj!")
     name_window.resizable(0, 0)
-    name_window.geometry("350x150")
+    name_window.geometry("500x520")
 
-    tkinter.Label(name_window, text="Zadaj svoje meno:", font=('Arial', 13)).pack(pady=15)
-    name_entry = tkinter.Entry(name_window, font=('Arial', 12))
-    name_entry.pack()
+    tkinter.Label(name_window, text="Vitaj!!", font=('Arial', 18, 'bold')).pack(pady=15)
+
+    tkinter.Label(name_window, text="─" * 55, fg='gray').pack()
+
+    tkinter.Label(name_window, text="Ako sa hrá", font=('Arial', 13, 'bold')).pack(pady=8)
+
+    tutorial_text = [
+        ("Útoč",          '#4a9e4a', "Zaútočíš na nepriateľa za náhodné poškodenie."),
+        ("Obránenie",     '#4a7abf', "Znížiš poškodenie nepriateľa na polovicu."),
+        ("Použi bonus",   '#c8a800', "Vyliečiš sa o náhodné HP (max 15)."),
+        ("Preskoč kolo",  '#888888', "Preskočíš svoj ťah a necháš nepriateľa útočiť."),
+    ]
+
+    for action, color, desc in tutorial_text:
+        frame = tkinter.Frame(name_window)
+        frame.pack(fill='x', padx=40, pady=3)
+        tkinter.Label(frame, text=action, font=('Arial', 10, 'bold'), fg='white',
+                      background=color, width=14, anchor='center').pack(side='left')
+        tkinter.Label(frame, text=desc, font=('Arial', 10), wraplength=280,
+                      justify='left').pack(side='left', padx=10)
+
+    tkinter.Label(name_window, text="─" * 55, fg='gray').pack(pady=8)
+
+    tkinter.Label(name_window, text="Zadaj svoje meno:", font=('Arial', 12)).pack()
+    name_entry = tkinter.Entry(name_window, font=('Arial', 12), width=20)
+    name_entry.pack(pady=8)
 
     def confirm():
         global player_name
@@ -90,9 +113,11 @@ def ask_for_name():
             player_name = name
             name_window.destroy()
         else:
-            tkinter.messagebox.showwarning("No name", "Please enter a name.", parent=name_window)
+            tkinter.messagebox.showwarning("Žiadne meno", "Prosím zadaj meno.", parent=name_window)
 
-    tkinter.Button(name_window, text="OK", command=confirm).pack(pady=10)
+    tkinter.Button(name_window, text="Začať hrať", background='#4a9e4a', activebackground='#3a7e3a',
+                   fg='white', font=('Arial', 11, 'bold'), width=16, command=confirm).pack(pady=10)
+
     name_window.mainloop()
 
 if not player_name:
@@ -143,7 +168,7 @@ class LevelPlayerparams():
         self.healovanieamm = healovanieamm
         self.defense = defense
 
-#### uzivatel a nepriatel obj creation ####
+
 uzivatel = Playerparams(gamedata['Playerhealth'], gamedata['Playerdmg'], gamedata['Playerweap'], 1)
 nepriatel = Enemparams(gamedata['Enemhealth'], gamedata['Enemdmg'], gamedata['Enemrng'], gamedata['Enemweap'], 1)
 
@@ -201,7 +226,7 @@ def finish_score(remaining_hp, rounds_taken, next_level_func=None):
 
 
 
-def bojokno(nepriatel, uzivatel, level_name="Custom", diff_multiplier=1.0,next_level_func=None):
+def bojokno(nepriatel, uzivatel, level_name="Custom", diff_multiplier=1.0,next_level_func_param=None):
     global uzivatelovekolo
     global fightbutton, defendbutton, itembutton, skipturnbutton
     global uzivatelzivotlabel, nepriatelzivotstatus
@@ -214,7 +239,7 @@ def bojokno(nepriatel, uzivatel, level_name="Custom", diff_multiplier=1.0,next_l
     global current_score, current_level, difficulty_multiplier, scorelabel
     global _next_level_func
 
-    _next_level_func = next_level_func
+    _next_level_func = next_level_func_param
     current_score = 0
     current_level = level_name
     difficulty_multiplier = diff_multiplier
@@ -464,30 +489,29 @@ def playpressed():
     playwindow.resizable(0, 0)
     playwindow.title('TmEsg')
     playwindow.geometry('950x700')
-
-    selectlevlabel = tkinter.Label(playwindow, text="Vyber si level:", font=('Arial', 15, 'bold'))
-    selectlevlabel.place(x=420, y=100)
+    playwindow.update_idletasks()
+    playwindow.geometry(f"950x700+{window.winfo_x() + (window.winfo_width() - 950) // 2}+{window.winfo_y() + (window.winfo_height() - 700) // 2}")
 
     def easylevelpress():
         easyenem = LevelEnemparams(zivot=50, damage=5, rng=25, weapon="None", healovanieamm=2, defense=1)
         easyplayer = LevelPlayerparams(zivot=100, damage=15, weapon="Gun", healovanieamm=10, defense=1)
         playwindow.destroy()
-        bojokno(easyenem, easyplayer, level_name="Easy", diff_multiplier=1.0, next_level_func=mediumlevelpress)
+        bojokno(easyenem, easyplayer, level_name="Easy", diff_multiplier=1.0, next_level_func_param=mediumlevelpress)
 
     def mediumlevelpress():
         mediumenem = LevelEnemparams(zivot=100, damage=10, rng=35, weapon="Sword", healovanieamm=5, defense=1)
         mediumplayer = LevelPlayerparams(zivot=100, damage=10, weapon="Sword", healovanieamm=5, defense=1)
-        bojokno(mediumenem, mediumplayer, level_name="Medium", diff_multiplier=1.5, next_level_func=hardlevelpress)
+        bojokno(mediumenem, mediumplayer, level_name="Medium", diff_multiplier=1.5, next_level_func_param=hardlevelpress)
 
     def hardlevelpress():
         hardenem = LevelEnemparams(zivot=150, damage=25, rng=45, weapon="Gun", healovanieamm=8, defense=1)
         hardplayer = LevelPlayerparams(zivot=85, damage=15, weapon="None", healovanieamm=3, defense=1)
-        bojokno(hardenem, hardplayer, level_name="Hard", diff_multiplier=2.0, next_level_func=veryhardlevelpress)
+        bojokno(hardenem, hardplayer, level_name="Hard", diff_multiplier=2.0, next_level_func_param=veryhardlevelpress)
 
     def veryhardlevelpress():
         vhardenem = LevelEnemparams(zivot=200, damage=50, rng=70, weapon="Gun", healovanieamm=10, defense=1)
         vhardplayer = LevelPlayerparams(zivot=50, damage=25, weapon="None", healovanieamm=1, defense=1)
-        bojokno(vhardenem, vhardplayer, level_name="VeryHard", diff_multiplier=3.0, next_level_func=None)
+        bojokno(vhardenem, vhardplayer, level_name="VeryHard", diff_multiplier=3.0, next_level_func_param=None)
 
     def vlastnahrapress():
         global uzivatel, nepriatel
@@ -592,22 +616,37 @@ def playpressed():
                 tkinter.messagebox.showerror('Chyba', 'Zadajte číslo.')
         tkinter.Button(customlevelwindow, text="Nastaviť", command=rngEnem).place(x=280, y=283)
 
-    easylev = tkinter.Button(playwindow, text="Ľahké", background="Green", activebackground="Dark Green", height=2, width=21, command=easylevelpress)
-    easylev.place(x=150, y=200)
-    mediumlev = tkinter.Button(playwindow, text="Stredné", background="Yellow", activebackground="Goldenrod", height=2, width=21, command=mediumlevelpress)
-    mediumlev.place(x=320, y=200)
-    hardlev = tkinter.Button(playwindow, text="Ťažké", background="Orange", activebackground="Orange3", height=2, width=21, command=hardlevelpress)
-    hardlev.place(x=490, y=200)
-    vhardlev = tkinter.Button(playwindow, text="Veľmi Ťažké", background="Red", activebackground="Red3", height=2, width=21, command=veryhardlevelpress)
-    vhardlev.place(x=660, y=200)
+    tkinter.Label(playwindow, text="Vyber si level", font=('Arial', 22, 'bold')).place(x=475, y=60, anchor='center')
+    tkinter.Label(playwindow, text="─" * 80, fg='gray').place(x=475, y=90, anchor='center')
 
-    customlev = tkinter.Button(playwindow, text="Vlastná Hra", background="MediumOrchid1", activebackground="MediumOrchid3", height=2, width=21, command=vlastnahrapress)
-    customlev.place(x=400, y=250)
+    levels = [
+        ("Ľahké",       '#4a9e4a', '#3a7e3a', "Nepriateľ: 50 HP  |  Ty: 100 HP",  easylevelpress),
+        ("Stredné",     '#c8a800', '#a88a00', "Nepriateľ: 100 HP  |  Ty: 100 HP", mediumlevelpress),
+        ("Ťažké",       '#d4721a', '#b45a10', "Nepriateľ: 150 HP  |  Ty: 85 HP",  hardlevelpress),
+        ("Veľmi Ťažké", '#bf4a4a', '#9f3a3a', "Nepriateľ: 200 HP  |  Ty: 50 HP",  veryhardlevelpress),
+    ]
 
-    def backmainpress():
-        playwindow.destroy()
-    backmain = tkinter.Button(playwindow, text="Vrátiť sa do menu", background="Gray", activebackground="Dark Gray", height=2, width=21, command=backmainpress)
-    backmain.place(x=400, y=350)
+    for i, (text, bg, hover, desc, cmd) in enumerate(levels):
+        x = 125 + i * 195
+        tkinter.Button(playwindow, text=text, background=bg, activebackground=hover,
+                       fg='white', font=('Arial', 11, 'bold'), height=3, width=14,
+                       command=cmd).place(x=x, y=200)
+        tkinter.Label(playwindow, text=desc, font=('Arial', 9), fg='gray').place(x=x + 70, y=275, anchor='center')
+
+    tkinter.Label(playwindow, text="─" * 80, fg='gray').place(x=475, y=310, anchor='center')
+
+    tkinter.Label(playwindow, text="Vlastná hra", font=('Arial', 13, 'bold')).place(x=475, y=340, anchor='center')
+    tkinter.Label(playwindow, text="Nastav si vlastné parametre pre hráča a nepriateľa", font=('Arial', 10), fg='gray').place(x=475, y=365, anchor='center')
+
+    tkinter.Button(playwindow, text="Vlastná Hra", background='#7a4abf', activebackground='#5a3a9f',
+                   fg='white', font=('Arial', 11, 'bold'), height=2, width=21,
+                   command=vlastnahrapress).place(x=475, y=400, anchor='center')
+
+    tkinter.Label(playwindow, text="─" * 80, fg='gray').place(x=475, y=450, anchor='center')
+
+    tkinter.Button(playwindow, text="Vrátiť sa do menu", background='#555555', activebackground='#333333',
+                   fg='white', font=('Arial', 11, 'bold'), height=2, width=21,
+                   command=lambda: playwindow.destroy()).place(x=475, y=490, anchor='center')
 
 
 audiovar = tkinter.BooleanVar()
