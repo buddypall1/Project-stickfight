@@ -16,13 +16,11 @@ enemystatuslabel = None
 current_score = 0
 current_level = "Custom"
 difficulty_multiplier = 1.0
-
+_next_level_func = None
 def loadData():
     try:
         with open(saveloc, 'rb') as file:
             data = pickle.load(file)
-
-        # Ensure all expected keys exist
         if 'TopScores' not in data:
             data['TopScores'] = {
                 "Easy": 0,
@@ -34,9 +32,9 @@ def loadData():
         if 'PlayerName' not in data:
             data['PlayerName'] = None
         if 'musicon' not in data:
-            data['musicon'] = True  # or "True" if you store as string
+            data['musicon'] = True  
         if 'audioOn' not in data:
-            data['audioOn'] = True  # or "True"
+            data['audioOn'] = True 
 
         return data
 
@@ -100,7 +98,7 @@ def ask_for_name():
 if not player_name:
     ask_for_name()
 
-#### window creation start ####
+
 window = tkinter.Tk()
 def disable_event():
    pass
@@ -108,7 +106,7 @@ window.protocol("WM_DELETE_WINDOW", disable_event)
 window.title("TmEsg")
 window.resizable(0, 0)
 window.geometry("950x700")
-#### window creation end ####
+
 
 class Playerparams():
     def __init__(self, zivot, damage, weapon, healovanieamm):
@@ -149,33 +147,61 @@ class LevelPlayerparams():
 uzivatel = Playerparams(gamedata['Playerhealth'], gamedata['Playerdmg'], gamedata['Playerweap'], 1)
 nepriatel = Enemparams(gamedata['Enemhealth'], gamedata['Enemdmg'], gamedata['Enemrng'], gamedata['Enemweap'], 1)
 
-##################################
-###       SCORE SYSTEM         ###
-##################################
 
 def add_score(points):
     global current_score, scorelabel
     current_score += points
     scorelabel.config(text=f"Skóre: {current_score}")
 
-def finish_score(remaining_hp, rounds_taken):
+def finish_score(remaining_hp, rounds_taken, next_level_func=None):
     global current_score, current_level, difficulty_multiplier
     hp_bonus = remaining_hp * 2
     round_bonus = max(0, 200 - (rounds_taken * 10))
     final_score = int((current_score + hp_bonus + round_bonus) * difficulty_multiplier)
-    if final_score > gamedata['TopScores'][current_level]:
+
+    is_new_high = final_score > gamedata['TopScores'][current_level]
+    if is_new_high:
         gamedata['TopScores'][current_level] = final_score
         savedata()
-        tkinter.messagebox.showinfo("Nové Vysoké Skóre!", f"Nové vysoké skóre pre {current_level}: {final_score}!")
+
+    win_window = tkinter.Toplevel(bojoveokno)
+    win_window.title("Výhra!")
+    win_window.resizable(0, 0)
+    win_window.geometry("400x250")
+    win_window.update_idletasks()
+    win_window.geometry(f"400x250+{bojoveokno.winfo_x() + (bojoveokno.winfo_width() - 400) // 2}+{bojoveokno.winfo_y() + (bojoveokno.winfo_height() - 250) // 2}")
+
+    if is_new_high:
+        tkinter.Label(win_window, text="🏆 Nové Vysoké Skóre!", font=('Arial', 16, 'bold'), fg='gold').place(x=200, y=30, anchor='center')
     else:
-        tkinter.messagebox.showinfo("Výhra", f"Vyhral si! Skóre: {final_score}\nNajvyššie skóre: {gamedata['TopScores'][current_level]}")
+        tkinter.Label(win_window, text="Vyhral si!", font=('Arial', 16, 'bold')).place(x=200, y=30, anchor='center')
+
+    tkinter.Label(win_window, text=f"Skóre: {final_score}", font=('Arial', 13)).place(x=200, y=70, anchor='center')
+    tkinter.Label(win_window, text=f"Najvyššie skóre: {gamedata['TopScores'][current_level]}", font=('Arial', 11), fg='gray').place(x=200, y=100, anchor='center')
+
+    tkinter.Label(win_window, text="─" * 40, fg='gray').place(x=200, y=130, anchor='center')
+
+    def go_to_menu():
+        win_window.destroy()
+        bojoveokno.destroy()
+
+    def go_next_level():
+        win_window.destroy()
+        bojoveokno.destroy()
+        if next_level_func:
+            next_level_func()
+
+    tkinter.Button(win_window, text="Hlavné Menu", background='#4a7abf', fg='white', font=('Arial', 11, 'bold'), height=2, width=14, command=go_to_menu).place(x=100, y=170, anchor='center')
+
+    if next_level_func:
+        tkinter.Button(win_window, text="Ďalší Level", background='#4a9e4a', fg='white', font=('Arial', 11, 'bold'), height=2, width=14, command=go_next_level).place(x=300, y=170, anchor='center')
+    else:
+        tkinter.Label(win_window, text="(Toto je posledný level)", font=('Arial', 10), fg='gray').place(x=200, y=170, anchor='center')
 
 
-##################################
-###       BATTLE LOGIC         ###
-##################################
 
-def bojokno(nepriatel, uzivatel, level_name="Custom", diff_multiplier=1.0):
+
+def bojokno(nepriatel, uzivatel, level_name="Custom", diff_multiplier=1.0,next_level_func=None):
     global uzivatelovekolo
     global fightbutton, defendbutton, itembutton, skipturnbutton
     global uzivatelzivotlabel, nepriatelzivotstatus
@@ -186,7 +212,9 @@ def bojokno(nepriatel, uzivatel, level_name="Custom", diff_multiplier=1.0):
     global kololabel
     global uzivatelstatuslabel, nepriatelstatuslabel, uzivatelsprite, uzivatelspritelabel, nepriatelsprite, nepriatelspritelabel
     global current_score, current_level, difficulty_multiplier, scorelabel
+    global _next_level_func
 
+    _next_level_func = next_level_func
     current_score = 0
     current_level = level_name
     difficulty_multiplier = diff_multiplier
@@ -200,7 +228,8 @@ def bojokno(nepriatel, uzivatel, level_name="Custom", diff_multiplier=1.0):
     bojoveokno.geometry("1080x600")
     bojoveokno.update_idletasks()
     bojoveokno.geometry(f"1080x600+{window.winfo_x() + (window.winfo_width() - 1080) // 2}+{window.winfo_y() + (window.winfo_height() - 600) // 2}")
-
+    exitfightbutton = tkinter.Button(bojoveokno, text="Menu", background='#bf4a4a', fg='white', font=('Arial', 9, 'bold'), height=1, width=8, command=lambda: [bojoveokno.destroy()])
+    exitfightbutton.place(x=60, y=450, anchor='center')
     kololabelinteger = 1
     kololabel = tkinter.Label(bojoveokno, text=f"KOLO: {kololabelinteger}", font=('Arial', 20, 'bold'))
     kololabel.place(x=540, y=20, anchor='center')
@@ -339,8 +368,7 @@ def UzivatelUtoc(uzivatel, nepriatel):
     bojoveokno.after(1000, lambda: nepriatelstatuslabel.config(text=""))
 
     if nepriatel.zivot <= 0:
-        finish_score(uzivatel.zivot, kololabelinteger)
-        bojoveokno.destroy()
+        finish_score(uzivatel.zivot, kololabelinteger, _next_level_func)
         return
 
     bojoveokno.after(1000, lambda: nepriatelsprite.config(file="Media/nepriatelsprite.png"))
@@ -403,9 +431,7 @@ def buttonystatus(state):
     skipturnbutton.config(state=state)
 
 
-##################################
-###      UI BUTTON HANDLERS    ###
-##################################
+
 
 def exitpressed():
     window.destroy()
@@ -446,25 +472,22 @@ def playpressed():
         easyenem = LevelEnemparams(zivot=50, damage=5, rng=25, weapon="None", healovanieamm=2, defense=1)
         easyplayer = LevelPlayerparams(zivot=100, damage=15, weapon="Gun", healovanieamm=10, defense=1)
         playwindow.destroy()
-        bojokno(easyenem, easyplayer, level_name="Easy", diff_multiplier=1.0)
+        bojokno(easyenem, easyplayer, level_name="Easy", diff_multiplier=1.0, next_level_func=mediumlevelpress)
 
     def mediumlevelpress():
         mediumenem = LevelEnemparams(zivot=100, damage=10, rng=35, weapon="Sword", healovanieamm=5, defense=1)
         mediumplayer = LevelPlayerparams(zivot=100, damage=10, weapon="Sword", healovanieamm=5, defense=1)
-        playwindow.destroy()
-        bojokno(mediumenem, mediumplayer, level_name="Medium", diff_multiplier=1.5)
+        bojokno(mediumenem, mediumplayer, level_name="Medium", diff_multiplier=1.5, next_level_func=hardlevelpress)
 
     def hardlevelpress():
         hardenem = LevelEnemparams(zivot=150, damage=25, rng=45, weapon="Gun", healovanieamm=8, defense=1)
         hardplayer = LevelPlayerparams(zivot=85, damage=15, weapon="None", healovanieamm=3, defense=1)
-        playwindow.destroy()
-        bojokno(hardenem, hardplayer, level_name="Hard", diff_multiplier=2.0)
+        bojokno(hardenem, hardplayer, level_name="Hard", diff_multiplier=2.0, next_level_func=veryhardlevelpress)
 
     def veryhardlevelpress():
         vhardenem = LevelEnemparams(zivot=200, damage=50, rng=70, weapon="Gun", healovanieamm=10, defense=1)
         vhardplayer = LevelPlayerparams(zivot=50, damage=25, weapon="None", healovanieamm=1, defense=1)
-        playwindow.destroy()
-        bojokno(vhardenem, vhardplayer, level_name="VeryHard", diff_multiplier=3.0)
+        bojokno(vhardenem, vhardplayer, level_name="VeryHard", diff_multiplier=3.0, next_level_func=None)
 
     def vlastnahrapress():
         global uzivatel, nepriatel
@@ -654,9 +677,7 @@ def settingspressed():
     tkinter.Button(settingswindow, text="Nastaviť meno", background='grey', command=confirmname).place(x=200, y=240, anchor='center')
 
 
-##################################
-###       MAIN MENU UI         ###
-##################################
+
 
 logo = tkinter.PhotoImage(file="Media/logo.png")
 logolabel = tkinter.Label(window, image=logo)
